@@ -1,0 +1,30 @@
+{
+  "name": "bossy",
+  "description": "Command line options parser",
+  "version": "1.0.0",
+  "repository": "git://github.com/hapijs/bossy",
+  "main": "index",
+  "keywords": [
+    "cli",
+    "command line",
+    "options",
+    "parser"
+  ],
+  "engines": {
+    "node": ">=0.10.30"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "lab": "3.x.x"
+  },
+  "scripts": {
+    "test": "make test-cov"
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://github.com/hapijs/bossy/raw/master/LICENSE"
+    }
+  ]
+}
