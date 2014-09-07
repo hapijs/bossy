@@ -38,7 +38,7 @@ describe('Bossy', function () {
 
     it('parses command line', function (done) {
 
-        var line = '-a -cb --aa -C 1 -d x -d 2 -e 1-4 -f arg1 arg2 arg3';
+        var line = '-a -cb --aa -C 1 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
         var definition = {
             a: {
                 type: 'boolean'
@@ -79,7 +79,7 @@ describe('Bossy', function () {
             g: false,
             C: 1,
             d: [ 'x', '2' ],
-            e: [1, 2, 3, 4],
+            e: [1, 2, 3, 4, 6, 7],
             f: 'arg1',
             _: ['arg2', 'arg3']
         });
