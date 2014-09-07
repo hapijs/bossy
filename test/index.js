@@ -51,7 +51,8 @@ describe('Bossy', function () {
                 type: 'boolean'
             },
             c: {
-                type: 'boolean'
+                type: 'boolean',
+                require: true
             },
             C: {
                 type: 'number'
@@ -89,6 +90,25 @@ describe('Bossy', function () {
             h: 'hello',
             _: ['arg2', 'arg3']
         });
+
+        done();
+    });
+
+    it('displays error message when required parameter is missing', function (done) {
+
+        var line = '-a';
+        var definition = {
+            a: {
+                type: 'boolean'
+            },
+            b: {
+                type: 'number',
+                require: true
+            }
+        };
+
+        var argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
 
         done();
     });
