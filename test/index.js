@@ -38,7 +38,7 @@ describe('Bossy', function () {
 
     it('parses command line', function (done) {
 
-        var line = '-a -cb --aa -C 1 -d x -d 2 -e 1-4 -f arg1 arg2 arg3';
+        var line = '-a -cb --aa -C 1 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
         var definition = {
             a: {
                 type: 'boolean'
@@ -51,7 +51,8 @@ describe('Bossy', function () {
                 type: 'boolean'
             },
             c: {
-                type: 'boolean'
+                type: 'boolean',
+                require: true
             },
             C: {
                 type: 'number'
@@ -67,6 +68,11 @@ describe('Bossy', function () {
             },
             g: {
                 type: 'boolean'
+            },
+            h: {
+                type: 'string',
+                default: 'hello',
+                alias: 'H'
             }
         };
 
@@ -79,10 +85,30 @@ describe('Bossy', function () {
             g: false,
             C: 1,
             d: [ 'x', '2' ],
-            e: [1, 2, 3, 4],
+            e: [1, 2, 3, 4, 6, 7],
             f: 'arg1',
+            h: 'hello',
             _: ['arg2', 'arg3']
         });
+
+        done();
+    });
+
+    it('displays error message when required parameter is missing', function (done) {
+
+        var line = '-a';
+        var definition = {
+            a: {
+                type: 'boolean'
+            },
+            b: {
+                type: 'number',
+                require: true
+            }
+        };
+
+        var argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
 
         done();
     });
