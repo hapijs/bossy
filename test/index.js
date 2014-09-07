@@ -67,6 +67,11 @@ describe('Bossy', function () {
             },
             g: {
                 type: 'boolean'
+            },
+            h: {
+                type: 'string',
+                default: 'hello',
+                alias: 'H'
             }
         };
 
@@ -81,6 +86,7 @@ describe('Bossy', function () {
             d: [ 'x', '2' ],
             e: [1, 2, 3, 4, 6, 7],
             f: 'arg1',
+            h: 'hello',
             _: ['arg2', 'arg3']
         });
 
