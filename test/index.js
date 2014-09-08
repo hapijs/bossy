@@ -21,125 +21,145 @@ var expect = Lab.expect;
 
 describe('Bossy', function () {
 
-    var parse = function (line, definition, options) {
+    describe('#parse', function () {
 
-        var orig = process.argv;
-        process.argv = [].concat('ignore', 'ignore', line.split(' '));
-        var result = null;
-        try {
-            result = Bossy.parse(definition, options);
-        }
-        catch (err) {
-            result = err;
-        }
-        process.argv = orig;
-        return result;
-    };
+        var parse = function (line, definition, options) {
 
-    it('parses command line', function (done) {
-
-        var line = '-a -cb --aa -C 1 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
-        var definition = {
-            a: {
-                type: 'boolean'
-            },
-            A: {
-                alias: 'aa',
-                type: 'boolean'
-            },
-            b: {
-                type: 'boolean'
-            },
-            c: {
-                type: 'boolean',
-                require: true
-            },
-            C: {
-                type: 'number'
-            },
-            d: {
-                type: 'string'
-            },
-            e: {
-                type: 'range'
-            },
-            f: {
-
-            },
-            g: {
-                type: 'boolean'
-            },
-            h: {
-                type: 'string',
-                default: 'hello',
-                alias: 'H'
+            var orig = process.argv;
+            process.argv = [].concat('ignore', 'ignore', line.split(' '));
+            var result = null;
+            try {
+                result = Bossy.parse(definition, options);
             }
+            catch (err) {
+                result = err;
+            }
+            process.argv = orig;
+            return result;
         };
 
-        var argv = parse(line, definition);
-        expect(argv).to.not.be.instanceof(Error);
-        expect(argv).to.deep.equal({ a: true,
-            A: true,
-            b: true,
-            c: true,
-            g: false,
-            C: 1,
-            d: [ 'x', '2' ],
-            e: [1, 2, 3, 4, 6, 7],
-            f: 'arg1',
-            h: 'hello',
-            _: ['arg2', 'arg3']
+        it('parses command line', function (done) {
+
+            var line = '-a -cb --aa -C 1 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
+            var definition = {
+                a: {
+                    type: 'boolean'
+                },
+                A: {
+                    alias: 'aa',
+                    type: 'boolean'
+                },
+                b: {
+                    type: 'boolean'
+                },
+                c: {
+                    type: 'boolean',
+                    require: true
+                },
+                C: {
+                    type: 'number'
+                },
+                d: {
+                    type: 'string'
+                },
+                e: {
+                    type: 'range'
+                },
+                f: {
+
+                },
+                g: {
+                    type: 'boolean'
+                },
+                h: {
+                    type: 'string',
+                    default: 'hello',
+                    alias: 'H'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.not.be.instanceof(Error);
+            expect(argv).to.deep.equal({ a: true,
+                A: true,
+                b: true,
+                c: true,
+                g: false,
+                C: 1,
+                d: [ 'x', '2' ],
+                e: [1, 2, 3, 4, 6, 7],
+                f: 'arg1',
+                h: 'hello',
+                _: ['arg2', 'arg3']
+            });
+
+            done();
         });
 
-        done();
+        it('returns error message when required parameter is missing', function (done) {
+
+            var line = '-a';
+            var definition = {
+                a: {
+                    type: 'boolean'
+                },
+                b: {
+                    type: 'number',
+                    require: true
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('returns error message when an unknown argument is used', function (done) {
+
+            var line = '-ac';
+            var definition = {
+                a: {
+                    type: 'boolean'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('returns error message when an empty argument is passed', function (done) {
+
+            var line = '-';
+            var definition = {
+                a: {
+                    type: 'boolean'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
     });
 
-    it('displays error message when required parameter is missing', function (done) {
+    describe('#usage', function () {
 
-        var line = '-a';
-        var definition = {
-            a: {
-                type: 'boolean'
-            },
-            b: {
-                type: 'number',
-                require: true
-            }
-        };
+        it('returns formatted usage information', function (done) {
 
-        var argv = parse(line, definition);
-        expect(argv).to.be.instanceof(Error);
+            var definition = {
+                a: {
+                    type: 'number',
+                    description: 'This needs a number'
+                }
+            };
 
-        done();
-    });
-
-    it('displays error message when an unknown argument is used', function (done) {
-
-        var line = '-ac';
-        var definition = {
-            a: {
-                type: 'true'
-            }
-        };
-
-        var argv = parse(line, definition);
-        expect(argv).to.be.instanceof(Error);
-
-        done();
-    });
-
-    it('displays error message when an empty argument is passed', function (done) {
-
-        var line = '-';
-        var definition = {
-            a: {
-                type: 'boolean'
-            }
-        };
-
-        var argv = parse(line, definition);
-        expect(argv).to.be.instanceof(Error);
-
-        done();
+            var result = Bossy.usage(definition);
+            expect(result).to.contain('-a [NUMBER]');
+            done();
+        });
     });
 });
