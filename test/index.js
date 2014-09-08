@@ -154,11 +154,21 @@ describe('Bossy', function () {
                 a: {
                     type: 'number',
                     description: 'This needs a number'
+                },
+                b: {
+                    alias: 'beta',
+                    required: true,
+                    description: 'Description for b'
+                },
+                c: {
+                    required: true
                 }
             };
 
             var result = Bossy.usage(definition);
-            expect(result).to.contain('-a [NUMBER]');
+            expect(result).to.contain('-a');
+            expect(result).to.contain('This needs a number');
+            expect(result).to.contain('-b, --beta');
             done();
         });
     });
