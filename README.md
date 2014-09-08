@@ -14,32 +14,31 @@ var Bossy = require('bossy');
 
 var definition = {
     h: {
-        description: 'Show help'
+        description: 'Show help',
         alias: 'help',
         type: 'boolean'
     },
     n: {
         description: 'Show your name',
-        alias: 'name',
-        required: true
+        alias: 'name'
     }
-}
+};
 
-var args = Bossy.parse(definition);
-var usage = Bossy.usage(definition, 'hello -n <name>');
 
-if (args instanceof Error) {
-    console.error(args.message);
-    console.error(usage);
+try {
+    var args = Bossy.parse(definition);
+} catch(err) {
+
+    console.error(err.message);
     return;
 }
 
-if (args.h) {
-    console.log(usage);
+if (args.h || !args.n) {
+    console.log(Bossy.usage(definition, 'hello -n <name>'));
     return;
 }
 
-console.log('Hello ' + args.name);
+console.log('Hello ' + args.n);
 ```
 
 ## Methods
@@ -71,6 +70,6 @@ h: {
 
 * `description`: Description message that will be returned with usage information.
 
-* `required`: Boolean to indicate if the argument is required.  Defaults to `false`
+* `require`: Boolean to indicate if the argument is required.  Defaults to `false`
 
 * `default`: A default value to assign to the argument if its not provided as an argument.

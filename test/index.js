@@ -157,11 +157,11 @@ describe('Bossy', function () {
                 },
                 b: {
                     alias: 'beta',
-                    required: true,
+                    require: true,
                     description: 'Description for b'
                 },
                 c: {
-                    required: true
+                    require: true
                 }
             };
 
