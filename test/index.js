@@ -112,4 +112,34 @@ describe('Bossy', function () {
 
         done();
     });
+
+    it('displays error message when an unknown argument is used', function (done) {
+
+        var line = '-ac';
+        var definition = {
+            a: {
+                type: 'true'
+            }
+        };
+
+        var argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+
+        done();
+    });
+
+    it('displays error message when an empty argument is passed', function (done) {
+
+        var line = '-';
+        var definition = {
+            a: {
+                type: 'boolean'
+            }
+        };
+
+        var argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+
+        done();
+    });
 });
