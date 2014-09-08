@@ -171,5 +171,21 @@ describe('Bossy', function () {
             expect(result).to.contain('-b, --beta');
             done();
         });
+
+        it('returns formatted usage header when provided', function (done) {
+
+            var definition = {
+                h: {
+                    type: 'string',
+                    description: 'Show help'
+                }
+            };
+
+            var result = Bossy.usage(definition, 'bossy -h');
+            expect(result).to.contain('Usage: bossy -h');
+            expect(result).to.contain('-h');
+            expect(result).to.contain('Show help');
+            done();
+        });
     });
 });
