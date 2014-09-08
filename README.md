@@ -25,11 +25,11 @@ var definition = {
 };
 
 
-try {
-    var args = Bossy.parse(definition);
-} catch(err) {
+var args = Bossy.parse(definition);
 
-    console.error(err.message);
+if (args instanceof Error) {
+
+    console.error(args.message);
     return;
 }
 
@@ -45,7 +45,8 @@ console.log('Hello ' + args.n);
 
 ### `parse(definition)`
 
-Expects a *bossy* definition object and will return the parsed `process.argv` arguments provided.
+Expects a *bossy* definition object and will return the parsed `process.argv` arguments provided.  If there is an error
+then the return value will be an `instanceof Error`.
 
 
 ### `usage(definition, [usage])`
