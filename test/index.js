@@ -130,7 +130,7 @@ describe('Bossy', function () {
             done();
         });
 
-        it('returns error message when an empty argument is passed', function (done) {
+        it('returns error message when an empty - is passed', function (done) {
 
             var line = '-';
             var definition = {
@@ -141,6 +141,99 @@ describe('Bossy', function () {
 
             var argv = parse(line, definition);
             expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('returns error message when an empty -- is passed', function (done) {
+
+            var line = '--';
+            var definition = {
+                a: {
+                    type: 'boolean'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('returns error message when an empty value is passed', function (done) {
+
+            var line = '-b -a';
+            var definition = {
+                a: {
+                    type: 'string'
+                },
+                b: {
+                    type: 'string'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('returns error message when a non-number value is passed for a number argument', function (done) {
+
+            var line = '-a hi';
+            var definition = {
+                a: {
+                    type: 'number'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('returns undefined when an empty value is passed for a range', function (done) {
+
+            var line = '-a';
+            var definition = {
+                a: {
+                    type: 'range'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.deep.equal({ a: undefined });
+
+            done();
+        });
+
+        it('is able to parse a range plus an additional number', function (done) {
+
+            var line = '-a 1-2,5';
+            var definition = {
+                a: {
+                    type: 'range'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.deep.equal({ a: [1, 2, 5] });
+
+            done();
+        });
+
+        it('is able to parse a range in reverse order', function (done) {
+
+            var line = '-a 5-1';
+            var definition = {
+                a: {
+                    type: 'range'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.deep.equal({ a: [5, 4, 3, 2, 1] });
 
             done();
         });
