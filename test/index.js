@@ -237,6 +237,22 @@ describe('Bossy', function () {
 
             done();
         });
+
+        it('allows a boolean to be defaulted to null', function (done) {
+
+            var line = '';
+            var definition = {
+                a: {
+                    type: 'boolean',
+                    default: null
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.deep.equal({ a: null, _: '' });
+
+            done();
+        });
     });
 
     describe('#usage', function () {
