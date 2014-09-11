@@ -311,5 +311,31 @@ describe('Bossy', function () {
             expect(result).to.contain('Show help');
             done();
         });
+
+        it('formatted usage message orders as -s,--long in first column', function (done) {
+
+            var definition = {
+                a: {
+                    type: 'number',
+                    description: 'This needs a number'
+                },
+                b: {
+                    alias: 'beta',
+                    description: 'Description for b'
+                },
+                code: {
+                    alias: 'c'
+                },
+                d: {
+                    alias: ['']
+                }
+            };
+
+            var result = Bossy.usage(definition);
+            expect(result).to.contain('-a');
+            expect(result).to.contain('-b, --beta');
+            expect(result).to.contain('-c, --code');
+            done();
+        });
     });
 });
