@@ -28,7 +28,6 @@ var definition = {
 var args = Bossy.parse(definition);
 
 if (args instanceof Error) {
-
     console.error(args.message);
     return;
 }
@@ -43,11 +42,13 @@ console.log('Hello ' + args.n);
 
 ## Methods
 
-### `parse(definition)`
+### `parse(definition, [options)`
 
 Expects a *bossy* definition object and will return the parsed `process.argv` arguments provided.  If there is an error
 then the return value will be an `instanceof Error`.
 
+Options accepts the following keys:
+* `argv` - custom argv array value.  Defaults to process.argv.
 
 ### `usage(definition, [usage])`
 
