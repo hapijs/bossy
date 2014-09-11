@@ -75,3 +75,5 @@ h: {
 * `require`: Boolean to indicate if the argument is required.  Defaults to `false`
 
 * `default`: A default value to assign to the argument if its not provided as an argument.
+
+* `valid`: A value or array of values that the argument is allowed to equal.
