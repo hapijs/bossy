@@ -268,6 +268,70 @@ describe('Bossy', function () {
 
             done();
         });
+
+        it('returns error message when a value isn\'t found in the valid property', function (done) {
+
+            var line = '-a 2';
+            var definition = {
+                a: {
+                    type: 'number',
+                    valid: 1
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('returns error message when a value isn\'t found in array of valid values', function (done) {
+
+            var line = '-a 4';
+            var definition = {
+                a: {
+                    type: 'number',
+                    valid: [1, 2, 3]
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.be.instanceof(Error);
+
+            done();
+        });
+
+        it('doesn\'t return an error when the value is in the valid array', function (done) {
+
+            var line = '-a 2';
+            var definition = {
+                a: {
+                    type: 'number',
+                    valid: [1, 2, 3]
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.deep.equal({ a: 2 });
+
+            done();
+        });
+
+        it('doesn\'t return an error when the value is in equal to the valid value', function (done) {
+
+            var line = '-a 0';
+            var definition = {
+                a: {
+                    type: 'number',
+                    valid: 0
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.deep.equal({ a: 0 });
+
+            done();
+        });
     });
 
     describe('#usage', function () {
