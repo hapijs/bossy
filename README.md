@@ -50,10 +50,13 @@ then the return value will be an `instanceof Error`.
 Options accepts the following keys:
 * `argv` - custom argv array value.  Defaults to process.argv.
 
-### `usage(definition, [usage])`
+### `usage(definition, [usage], [options])`
 
 Format a  *bossy* definition object for display in the console.  If `usage` is provided the returned value will
 include the usage value formatted at the top of the message.
+
+Options accepts the following keys:
+* `colors` - Determines if colors are enabled when formatting usage.  Defaults to whatever TTY supports.
 
 
 ## Definition Object
