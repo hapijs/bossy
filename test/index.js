@@ -376,6 +376,93 @@ describe('Bossy', function () {
             done();
         });
 
+        it('returns formatted usage information with colors when enabled', function (done) {
+
+            var definition = {
+                a: {
+                    alias: 'alpha',
+                    require: true,
+                    description: 'Description for b'
+                }
+            };
+
+            var result = Bossy.usage(definition, { colors: true });
+
+            expect(result).to.contain('-a');
+            expect(result).to.contain('\u001b[0m');
+            done();
+        });
+
+        it('when colors are missing defaults to true if tty supports colors', function (done) {
+
+            var definition = {
+                a: {
+                    alias: 'alpha',
+                    require: true,
+                    description: 'Description for b'
+                }
+            };
+
+            var Tty = require('tty');
+            var currentIsAtty = Tty.isatty;
+
+            Tty.isatty = function () {
+
+                Tty.isatty = currentIsAtty;
+                return true;
+            };
+
+            var result = Bossy.usage(definition);
+
+            expect(result).to.contain('-a');
+            expect(result).to.contain('\u001b[0m');
+            done();
+        });
+
+        it('when colors are missing defaults to false if tty doesn\'t support colors', function (done) {
+
+            var definition = {
+                a: {
+                    alias: 'alpha',
+                    require: true,
+                    description: 'Description for b'
+                }
+            };
+
+            var Tty = require('tty');
+            var currentIsAtty = Tty.isatty;
+
+            Tty.isatty = function () {
+
+                Tty.isatty = currentIsAtty;
+                return false;
+            };
+
+            var result = Bossy.usage(definition);
+
+            expect(result).to.contain('-a');
+            expect(result).to.not.contain('\u001b[0m');
+            done();
+        });
+
+        it('returns colors usage information when passed as parameter', function (done) {
+
+            var definition = {
+                a: {
+                    alias: 'alpha',
+                    require: true,
+                    description: 'Description for b'
+                }
+            };
+
+            var result = Bossy.usage(definition, 'bossy -c', { colors: true });
+
+            expect(result).to.contain('bossy');
+            expect(result).to.contain('-a');
+            expect(result).to.contain('\u001b[0m');
+            done();
+        });
+
         it('formatted usage message orders as -s,--long in first column', function (done) {
 
             var definition = {
