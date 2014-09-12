@@ -332,6 +332,22 @@ describe('Bossy', function () {
 
             done();
         });
+
+        it('displays unrecognized arguments in error message ', function (done) {
+
+            var line = '-a 0 -b';
+            var definition = {
+                a: {
+                    type: 'number',
+                    description: 'This needs a number'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv.message).to.contain('Unknown option: b');
+
+            done();
+        });
     });
 
     describe('#usage', function () {
