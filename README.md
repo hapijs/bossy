@@ -38,6 +38,7 @@ if (args.h || !args.n) {
 }
 
 console.log('Hello ' + args.n);
+console.log('Hello ' + args.name);
 ```
 
 ## Methods
