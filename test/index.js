@@ -89,8 +89,58 @@ describe('Bossy', function () {
                 d: [ 'x', '2' ],
                 e: [1, 2, 3, 4, 6, 7],
                 f: 'arg1',
+                _: ['arg2', 'arg3'],
+                aa: true,
                 h: 'hello',
-                _: ['arg2', 'arg3']
+                H: 'hello'
+            });
+
+            done();
+        });
+
+        it('copies values into all of a key\'s aliases', function (done) {
+
+            var line = '--path ./usr/home/bin -c -T 1-4,6-7 --time 9000';
+            var definition = {
+                p: {
+                    alias: ['path', 'Path', '$PATH']
+                },
+                c: {
+                    alias: 'command',
+                    type: 'boolean'
+                },
+                C: {
+                    type: 'number',
+                    alias: ['change', 'time']
+                },
+                t: {
+                    type: 'range',
+                    alias: ['T', 'tes']
+                },
+                h: {
+                    type: 'string',
+                    default: 'hello',
+                    alias: 'H'
+                }
+            };
+
+            var argv = parse(line, definition);
+            expect(argv).to.not.be.instanceof(Error);
+            expect(argv).to.deep.equal({
+                c: true,
+                p: './usr/home/bin',
+                t: [1, 2, 3, 4, 6, 7],
+                path: './usr/home/bin',
+                Path: './usr/home/bin',
+                '$PATH': './usr/home/bin',
+                C: 9000,
+                change: 9000,
+                command: true,
+                time: 9000,
+                T: [1, 2, 3, 4, 6, 7],
+                tes: [1, 2, 3, 4, 6, 7],
+                h: 'hello',
+                H: 'hello'
             });
 
             done();
