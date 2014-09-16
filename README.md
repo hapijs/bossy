@@ -4,7 +4,7 @@ Command line options parser.
 
 [![Build Status](https://secure.travis-ci.org/hapijs/bossy.png)](http://travis-ci.org/hapijs/bossy)
 
-Lead Maintainer - [Wyatt Preul](https://github.com/geek)
+Lead Maintainer - [Daniela Borges](https://github.com/danielaborges)
 
 
 ## Usage
