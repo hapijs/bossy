@@ -12,8 +12,6 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.experiment;
 var it = lab.test;
 var expect = Lab.expect;
@@ -21,7 +19,7 @@ var expect = Lab.expect;
 
 describe('Bossy', function () {
 
-    describe('#parse', function () {
+    describe('parse()', function () {
 
         var parse = function (line, definition, options) {
 
@@ -400,7 +398,7 @@ describe('Bossy', function () {
         });
     });
 
-    describe('#usage', function () {
+    describe('usage()', function () {
 
         it('returns formatted usage information', function (done) {
 
