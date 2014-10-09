@@ -43,7 +43,7 @@ console.log('Hello ' + args.name);
 
 ## Methods
 
-### `parse(definition, [options)`
+### `parse(definition, [options])`
 
 Expects a *bossy* definition object and will return the parsed `process.argv` arguments provided.  If there is an error
 then the return value will be an `instanceof Error`.
