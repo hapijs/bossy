@@ -302,7 +302,7 @@ describe('parse()', function () {
 
     it('allows custom argv to be passed in options in place of process.argv', function (done) {
 
-        var argv = ['node', 'cli', '-a', '1-2,5'];
+        var argv = ['-a', '1-2,5'];
         var definition = {
             a: {
                 type: 'range'
