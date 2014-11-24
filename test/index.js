@@ -142,6 +142,25 @@ describe('parse()', function () {
         done();
     });
 
+    it('does not return message when required parameter is missing if type help is being executed', function (done) {
+
+        var line = '--try -q -h';
+        var definition = {
+            h: {
+                type: 'help'
+            },
+            b: {
+                type: 'number',
+                require: true
+            }
+        };
+
+        var argv = parse(line, definition);
+        expect(argv.h).to.equal(true);
+
+        done();
+    });
+
     it('returns error message when required parameter is missing', function (done) {
 
         var line = '-a';
