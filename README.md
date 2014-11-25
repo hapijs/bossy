@@ -72,7 +72,12 @@ h: {
 }
 ```
 
-* `type`: Available types are: `boolean`, `range`, `number`, `string`.  Defaults to `string`.
+* `type`: Available types are: `boolean`, `range`, `number`, `string`, and `help`.  Defaults to `string`.
+
+    `help` is a special type that allows the switch to be executed even though
+    other paramters are required. Use case is to display a help message and
+    quit. This will bypass all other errors, so be sure to capture it. It
+    behaves like a `boolean`.
 
 * `description`: Description message that will be returned with usage information.
 
