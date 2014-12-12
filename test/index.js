@@ -36,7 +36,7 @@ describe('parse()', function () {
 
     it('parses command line', function (done) {
 
-        var line = '-a -cb --aa -C 1 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
+        var line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
         var definition = {
             a: {
                 type: 'boolean'
@@ -81,7 +81,7 @@ describe('parse()', function () {
             b: true,
             c: true,
             g: false,
-            C: 1,
+            C: [1, 42],
             d: [ 'x', '2' ],
             e: [1, 2, 3, 4, 6, 7],
             f: 'arg1',
