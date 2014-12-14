@@ -328,7 +328,7 @@ describe('parse()', function () {
             }
         };
 
-        var argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv: argv });
         expect(argv).to.deep.equal({ a: [1, 2, 5] });
 
         done();
