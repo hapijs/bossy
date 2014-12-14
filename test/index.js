@@ -413,6 +413,42 @@ describe('parse()', function () {
 
         done();
     });
+
+    it('reports defaulted optional string args', function (done) {
+
+        var definition = {
+            lint: {
+                alias: 'L',
+                type: 'string',
+                description: 'enable linting',
+                default: null,
+                noargDefault: 'eslint',
+                valid: [null, 'eslint', 'jslint']
+            }
+        };
+        var argv = parse('', definition);
+        expect(argv.lint).to.equal(null);
+
+        argv = parse('-L eslint', definition);
+        expect(argv.lint).to.equal('eslint');
+
+        argv = parse('-L jslint', definition);
+        expect(argv.lint).to.equal('jslint');
+
+        argv = parse('-L', definition);
+        expect(argv.lint).to.equal('eslint');
+
+        argv = parse('--lint eslint', definition);
+        expect(argv.lint).to.equal('eslint');
+
+        argv = parse('--lint jslint', definition);
+        expect(argv.lint).to.equal('jslint');
+
+        argv = parse('--lint', definition);
+        expect(argv.lint).to.equal('eslint');
+
+        done();
+    });
 });
 
 describe('usage()', function () {
