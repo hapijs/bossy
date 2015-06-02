@@ -24,13 +24,7 @@ describe('parse()', function () {
 
         var orig = process.argv;
         process.argv = [].concat('ignore', 'ignore', line.split(' '));
-        var result = null;
-        try {
-            result = Bossy.parse(definition, options);
-        }
-        catch (err) {
-            result = err;
-        }
+        var result = Bossy.parse(definition, options);
         process.argv = orig;
         return result;
     };
@@ -411,6 +405,49 @@ describe('parse()', function () {
 
         var argv = parse(line, definition);
         expect(argv.message).to.contain('Unknown option: b');
+
+        done();
+    });
+
+    it('throws on invalid input ', function (done) {
+
+        var line = '-a 0 -b';
+
+        expect(function () {
+
+            var definition = {
+                a: {
+                    unknown: true
+                }
+            };
+
+            parse(line, definition);
+        }).to.throw(Error, /^Invalid definition/);
+
+        expect(function () {
+
+            var definition = {
+                a: {
+                    type: 'unknown'
+                }
+            };
+
+            parse(line, definition);
+        }).to.throw(Error, /^Invalid definition/);
+
+        expect(function () {
+
+            var definition = {
+                '!!': {}
+            };
+
+            parse(line, definition);
+        }).to.throw(Error, /^Invalid definition/);
+
+        expect(function () {
+
+            parse(line, {}, { args: ['-c'] });
+        }).to.throw(Error, /^Invalid options argument/);
 
         done();
     });
