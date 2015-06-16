@@ -329,6 +329,51 @@ describe('parse()', function () {
         done();
     });
 
+    it('allows multiple number values to be passed in', function (done) {
+
+        var argv = ['-a', '0', '-a', '1'];
+        var definition = {
+            a: {
+                type: 'number'
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.deep.equal({ a: [0, 1] });
+
+        done();
+    });
+
+    it('allows multiple string values to be passed in', function (done) {
+
+        var argv = ['-a', 'x', '-a', 'y'];
+        var definition = {
+            a: {
+                type: 'string'
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.deep.equal({ a: ['x', 'y'] });
+
+        done();
+    });
+
+    it('allows multiple range values to be passed in', function (done) {
+
+        var argv = ['-a', '0,1-2,5', '-a', '8-9'];
+        var definition = {
+            a: {
+                type: 'range'
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.deep.equal({ a: [0, 1, 2, 5, 8, 9] });
+
+        done();
+    });
+
     it('returns error message when a value isn\'t found in the valid property', function (done) {
 
         var line = '-a 2';
