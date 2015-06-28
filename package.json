@@ -3,7 +3,7 @@
   "description": "Command line options parser",
   "version": "1.0.3",
   "repository": "git://github.com/hapijs/bossy",
-  "main": "index",
+  "main": "lib/index.js",
   "keywords": [
     "cli",
     "command line",
