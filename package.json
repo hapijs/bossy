@@ -24,10 +24,5 @@
   "scripts": {
     "test": "make test-cov"
   },
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "http://github.com/hapijs/bossy/raw/master/LICENSE"
-    }
-  ]
+  "license": "BSD-3-Clause"
 }
