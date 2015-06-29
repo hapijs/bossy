@@ -80,7 +80,7 @@ h: {
     behaves like a `boolean`.
 
 * `multiple` : Boolean to indicate if the same argument can be provided multiple times. If true, the parsed value
-will always be an array of `type`'s. Defaults to false.
+will always be an array of `type`'s. Defaults to `false`.
 
 * `description`: Description message that will be returned with usage information.
 
