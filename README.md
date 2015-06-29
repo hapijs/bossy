@@ -79,6 +79,9 @@ h: {
     quit. This will bypass all other errors, so be sure to capture it. It
     behaves like a `boolean`.
 
+* `multiple` : Boolean to indicate if the same argument can be provided multiple times. If true, the parsed value
+will always be an array of `type`'s. Defaults to false.
+
 * `description`: Description message that will be returned with usage information.
 
 * `require`: Boolean to indicate if the argument is required.  Defaults to `false`
