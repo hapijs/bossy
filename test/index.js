@@ -48,10 +48,12 @@ describe('parse()', function () {
                 require: true
             },
             C: {
-                type: 'number'
+                type: 'number',
+                multiple: true
             },
             d: {
-                type: 'string'
+                type: 'string',
+                multiple: true
             },
             e: {
                 type: 'range'
@@ -309,7 +311,7 @@ describe('parse()', function () {
         };
 
         var argv = parse(line, definition);
-        expect(argv).to.deep.equal({ a: null, _: '' });
+        expect(argv).to.deep.equal({ a: null, _: [''] });
 
         done();
     });
@@ -329,12 +331,106 @@ describe('parse()', function () {
         done();
     });
 
-    it('allows multiple number values to be passed in', function (done) {
+    it('returns error message when multiple number values are passed in by default', function (done) {
 
         var argv = ['-a', '0', '-a', '1'];
         var definition = {
             a: {
                 type: 'number'
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.be.instanceof(Error);
+
+        done();
+    });
+
+    it('returns error message when multiple string values are passed in by default', function (done) {
+
+        var argv = ['-a', 'x', '-a', 'y'];
+        var definition = {
+            a: {
+                type: 'string'
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.be.instanceof(Error);
+
+        done();
+    });
+
+    it('returns error message when multiple range values are passed in by default', function (done) {
+
+        var argv = ['-a', '0,1-2,5', '-a', '8-9'];
+        var definition = {
+            a: {
+                type: 'range'
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.be.instanceof(Error);
+
+        done();
+    });
+
+    it('always returns an array when multiple number option is set to true', function (done) {
+
+        var argv = ['-a', '0'];
+        var definition = {
+            a: {
+                type: 'number',
+                multiple: true
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.deep.equal({ a: [0] });
+
+        done();
+    });
+
+    it('always returns an array when multiple string option is set to true', function (done) {
+
+        var argv = ['-a', 'x'];
+        var definition = {
+            a: {
+                type: 'string',
+                multiple: true
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.deep.equal({ a: ['x'] });
+
+        done();
+    });
+
+    it('always returns an array when multiple range option is set to true', function (done) {
+
+        var argv = ['-a', '1'];
+        var definition = {
+            a: {
+                type: 'range',
+                multiple: true
+            }
+        };
+
+        argv = Bossy.parse(definition, { argv: argv });
+        expect(argv).to.deep.equal({ a: [1] });
+
+        done();
+    });
+
+    it('allows multiple number values to be passed in', function (done) {
+
+        var argv = ['-a', '0', '-a', '1'];
+        var definition = {
+            a: {
+                type: 'number',
+                multiple: true
             }
         };
 
@@ -349,7 +445,8 @@ describe('parse()', function () {
         var argv = ['-a', 'x', '-a', 'y'];
         var definition = {
             a: {
-                type: 'string'
+                type: 'string',
+                multiple: true
             }
         };
 
@@ -364,7 +461,8 @@ describe('parse()', function () {
         var argv = ['-a', '0,1-2,5', '-a', '8-9'];
         var definition = {
             a: {
-                type: 'range'
+                type: 'range',
+                multiple: true
             }
         };
 
