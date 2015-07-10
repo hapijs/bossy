@@ -79,7 +79,7 @@ describe('parse()', function () {
             c: true,
             g: false,
             C: [1, 42],
-            d: [ 'x', '2' ],
+            d: ['x', '2'],
             e: [1, 2, 3, 4, 6, 7],
             f: 'arg1',
             _: ['arg2', 'arg3'],
