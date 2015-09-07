@@ -750,4 +750,35 @@ describe('usage()', function () {
         expect(result).to.contain('-c, --code');
         done();
     });
+
+    it('formatted usage message orders shows default values', function (done) {
+
+        var definition = {
+            aa: {
+                type: 'number',
+                description: 'This needs a number'
+            },
+            b: {
+                alias: 'beta',
+                description: 'Description for b',
+                default: 'b'
+            },
+            code: {
+                alias: 'c',
+                default: 'c'
+            },
+            d: {
+                alias: ['']
+            }
+
+        };
+
+        var result = Bossy.usage(definition);
+        expect(result).to.contain('-a');
+        expect(result).to.contain('-b, --beta');
+        expect(result).to.contain('(b)');
+        expect(result).to.contain('-c, --code');
+        expect(result).to.contain('(c)');
+        done();
+    });
 });
