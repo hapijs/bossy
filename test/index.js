@@ -174,6 +174,25 @@ describe('parse()', () => {
         done();
     });
 
+    it('returns list of valid options for multple options', (done) => {
+
+        const line = '-a rezero';
+        const definition = {
+            a: {
+                type: 'string',
+                valid: ['steins;gate','erased','death note']
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv.message).to.include('steins;gate');
+        expect(argv.message).to.include('erased');
+        expect(argv.message).to.include('death note');
+        expect(argv).to.be.instanceof(Error);
+
+        done();
+    });
+
     it('returns error message when an unknown argument is used', (done) => {
 
         const line = '-ac';
