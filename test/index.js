@@ -341,7 +341,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [1, 2, 5] });
 
         done();
@@ -356,7 +356,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.be.instanceof(Error);
 
         done();
@@ -371,7 +371,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.be.instanceof(Error);
 
         done();
@@ -386,7 +386,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.be.instanceof(Error);
 
         done();
@@ -402,7 +402,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0] });
 
         done();
@@ -418,7 +418,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: ['x'] });
 
         done();
@@ -434,7 +434,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [1] });
 
         done();
@@ -450,7 +450,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0, 1] });
 
         done();
@@ -466,7 +466,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: ['x', 'y'] });
 
         done();
@@ -482,7 +482,7 @@ describe('parse()', () => {
             }
         };
 
-        argv = Bossy.parse(definition, { argv: argv });
+        argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0, 1, 2, 5, 8, 9] });
 
         done();
