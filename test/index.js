@@ -628,6 +628,9 @@ describe('usage()', () => {
             },
             c: {
                 require: true
+            },
+            longname: {
+                type: 'string'
             }
         };
 
@@ -635,6 +638,7 @@ describe('usage()', () => {
         expect(result).to.contain('-a');
         expect(result).to.contain('This needs a number');
         expect(result).to.contain('-b, --beta');
+        expect(result).to.contain('--longname');
         done();
     });
 
