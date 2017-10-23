@@ -2,16 +2,14 @@
 
 // Load modules
 
+const Bossy = require('../');
 const Code = require('code');
 const Lab = require('lab');
-const Bossy = require('../');
 
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.experiment;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
@@ -26,7 +24,7 @@ describe('parse()', () => {
         return result;
     };
 
-    it('parses command line', (done) => {
+    it('parses command line', async () => {
 
         const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
         const definition = {
@@ -84,11 +82,9 @@ describe('parse()', () => {
             h: 'hello',
             H: 'hello'
         });
-
-        done();
     });
 
-    it('copies values into all of a key\'s aliases', (done) => {
+    it('copies values into all of a key\'s aliases', async () => {
 
         const line = '--path ./usr/home/bin -c -T 1-4,6-7 --time 9000';
         const definition = {
@@ -132,11 +128,9 @@ describe('parse()', () => {
             h: 'hello',
             H: 'hello'
         });
-
-        done();
     });
 
-    it('does not return message when required parameter is missing if type help is being executed', (done) => {
+    it('does not return message when required parameter is missing if type help is being executed', async () => {
 
         const line = '--try -q -h';
         const definition = {
@@ -151,11 +145,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv.h).to.equal(true);
-
-        done();
     });
 
-    it('returns error message when required parameter is missing', (done) => {
+    it('returns error message when required parameter is missing', async () => {
 
         const line = '-a';
         const definition = {
@@ -170,11 +162,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns list of valid options for multple options', (done) => {
+    it('returns list of valid options for multple options', async () => {
 
         const line = '-a rezero';
         const definition = {
@@ -189,11 +179,9 @@ describe('parse()', () => {
         expect(argv.message).to.include('erased');
         expect(argv.message).to.include('death note');
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when an unknown argument is used', (done) => {
+    it('returns error message when an unknown argument is used', async () => {
 
         const line = '-ac';
         const definition = {
@@ -204,11 +192,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when an empty - is passed', (done) => {
+    it('returns error message when an empty - is passed', async () => {
 
         const line = '-';
         const definition = {
@@ -219,11 +205,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when an empty -- is passed', (done) => {
+    it('returns error message when an empty -- is passed', async () => {
 
         const line = '--';
         const definition = {
@@ -234,11 +218,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when an empty value is passed', (done) => {
+    it('returns error message when an empty value is passed', async () => {
 
         const line = '-b -a';
         const definition = {
@@ -252,11 +234,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when a non-number value is passed for a number argument', (done) => {
+    it('returns error message when a non-number value is passed for a number argument', async () => {
 
         const line = '-a hi';
         const definition = {
@@ -267,11 +247,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns undefined when an empty value is passed for a range', (done) => {
+    it('returns undefined when an empty value is passed for a range', async () => {
 
         const line = '-a';
         const definition = {
@@ -282,11 +260,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.equal({ a: undefined });
-
-        done();
     });
 
-    it('is able to parse a range plus an additional number', (done) => {
+    it('is able to parse a range plus an additional number', async () => {
 
         const line = '-a 1-2,5';
         const definition = {
@@ -297,11 +273,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.equal({ a: [1, 2, 5] });
-
-        done();
     });
 
-    it('is able to parse a range in reverse order', (done) => {
+    it('is able to parse a range in reverse order', async () => {
 
         const line = '-a 5-1';
         const definition = {
@@ -312,11 +286,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.equal({ a: [5, 4, 3, 2, 1] });
-
-        done();
     });
 
-    it('allows a boolean to be defaulted to null', (done) => {
+    it('allows a boolean to be defaulted to null', async () => {
 
         const line = '';
         const definition = {
@@ -328,11 +300,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.equal({ a: null, _: [''] });
-
-        done();
     });
 
-    it('allows custom argv to be passed in options in place of process.argv', (done) => {
+    it('allows custom argv to be passed in options in place of process.argv', async () => {
 
         let argv = ['-a', '1-2,5'];
         const definition = {
@@ -343,11 +313,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [1, 2, 5] });
-
-        done();
     });
 
-    it('returns error message when multiple number values are passed in by default', (done) => {
+    it('returns error message when multiple number values are passed in by default', async () => {
 
         let argv = ['-a', '0', '-a', '1'];
         const definition = {
@@ -358,11 +326,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when multiple string values are passed in by default', (done) => {
+    it('returns error message when multiple string values are passed in by default', async () => {
 
         let argv = ['-a', 'x', '-a', 'y'];
         const definition = {
@@ -373,11 +339,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when multiple range values are passed in by default', (done) => {
+    it('returns error message when multiple range values are passed in by default', async () => {
 
         let argv = ['-a', '0,1-2,5', '-a', '8-9'];
         const definition = {
@@ -388,11 +352,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('always returns an array when multiple number option is set to true', (done) => {
+    it('always returns an array when multiple number option is set to true', async () => {
 
         let argv = ['-a', '0'];
         const definition = {
@@ -404,11 +366,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0] });
-
-        done();
     });
 
-    it('always returns an array when multiple string option is set to true', (done) => {
+    it('always returns an array when multiple string option is set to true', async () => {
 
         let argv = ['-a', 'x'];
         const definition = {
@@ -420,11 +380,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: ['x'] });
-
-        done();
     });
 
-    it('always returns an array when multiple range option is set to true', (done) => {
+    it('always returns an array when multiple range option is set to true', async () => {
 
         let argv = ['-a', '1'];
         const definition = {
@@ -436,11 +394,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [1] });
-
-        done();
     });
 
-    it('allows multiple number values to be passed in', (done) => {
+    it('allows multiple number values to be passed in', async () => {
 
         let argv = ['-a', '0', '-a', '1'];
         const definition = {
@@ -452,11 +408,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0, 1] });
-
-        done();
     });
 
-    it('allows multiple string values to be passed in', (done) => {
+    it('allows multiple string values to be passed in', async () => {
 
         let argv = ['-a', 'x', '-a', 'y'];
         const definition = {
@@ -468,11 +422,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: ['x', 'y'] });
-
-        done();
     });
 
-    it('allows multiple range values to be passed in', (done) => {
+    it('allows multiple range values to be passed in', async () => {
 
         let argv = ['-a', '0,1-2,5', '-a', '8-9'];
         const definition = {
@@ -484,11 +436,9 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0, 1, 2, 5, 8, 9] });
-
-        done();
     });
 
-    it('returns error message when a value isn\'t found in the valid property', (done) => {
+    it('returns error message when a value isn\'t found in the valid property', async () => {
 
         const line = '-a 2';
         const definition = {
@@ -500,11 +450,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('returns error message when a value isn\'t found in array of valid values', (done) => {
+    it('returns error message when a value isn\'t found in array of valid values', async () => {
 
         const line = '-a 4';
         const definition = {
@@ -516,11 +464,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.be.instanceof(Error);
-
-        done();
     });
 
-    it('doesn\'t return an error when the value is in the valid array', (done) => {
+    it('doesn\'t return an error when the value is in the valid array', async () => {
 
         const line = '-a 2';
         const definition = {
@@ -532,11 +478,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.equal({ a: 2 });
-
-        done();
     });
 
-    it('doesn\'t return an error when the value is in equal to the valid value', (done) => {
+    it('doesn\'t return an error when the value is in equal to the valid value', async () => {
 
         const line = '-a 0';
         const definition = {
@@ -548,11 +492,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.equal({ a: 0 });
-
-        done();
     });
 
-    it('displays unrecognized arguments in error message ', (done) => {
+    it('displays unrecognized arguments in error message ', async () => {
 
         const line = '-a 0 -b';
         const definition = {
@@ -564,11 +506,9 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv.message).to.contain('Unknown option: b');
-
-        done();
     });
 
-    it('throws on invalid input ', (done) => {
+    it('throws on invalid input ', async () => {
 
         const line = '-a 0 -b';
 
@@ -607,14 +547,12 @@ describe('parse()', () => {
 
             parse(line, {}, { args: ['-c'] });
         }).to.throw(Error, /^Invalid options argument/);
-
-        done();
     });
 });
 
 describe('usage()', () => {
 
-    it('returns formatted usage information', (done) => {
+    it('returns formatted usage information', async () => {
 
         const definition = {
             a: {
@@ -639,10 +577,9 @@ describe('usage()', () => {
         expect(result).to.contain('This needs a number');
         expect(result).to.contain('-b, --beta');
         expect(result).to.contain('--longname');
-        done();
     });
 
-    it('returns formatted usage header when provided', (done) => {
+    it('returns formatted usage header when provided', async () => {
 
         const definition = {
             h: {
@@ -655,10 +592,9 @@ describe('usage()', () => {
         expect(result).to.contain('Usage: bossy -h');
         expect(result).to.contain('-h');
         expect(result).to.contain('Show help');
-        done();
     });
 
-    it('returns formatted usage information with colors when enabled', (done) => {
+    it('returns formatted usage information with colors when enabled', async () => {
 
         const definition = {
             a: {
@@ -672,10 +608,9 @@ describe('usage()', () => {
 
         expect(result).to.contain('-a');
         expect(result).to.contain('\u001b[0m');
-        done();
     });
 
-    it('when colors are missing defaults to true if tty supports colors', (done) => {
+    it('when colors are missing defaults to true if tty supports colors', async () => {
 
         const definition = {
             a: {
@@ -698,10 +633,9 @@ describe('usage()', () => {
 
         expect(result).to.contain('-a');
         expect(result).to.contain('\u001b[0m');
-        done();
     });
 
-    it('when colors are missing defaults to false if tty doesn\'t support colors', (done) => {
+    it('when colors are missing defaults to false if tty doesn\'t support colors', async () => {
 
         const definition = {
             a: {
@@ -724,10 +658,9 @@ describe('usage()', () => {
 
         expect(result).to.contain('-a');
         expect(result).to.not.contain('\u001b[0m');
-        done();
     });
 
-    it('returns colors usage information when passed as parameter', (done) => {
+    it('returns colors usage information when passed as parameter', async () => {
 
         const definition = {
             a: {
@@ -742,10 +675,9 @@ describe('usage()', () => {
         expect(result).to.contain('bossy');
         expect(result).to.contain('-a');
         expect(result).to.contain('\u001b[0m');
-        done();
     });
 
-    it('formatted usage message orders as -s,--long in first column', (done) => {
+    it('formatted usage message orders as -s,--long in first column', async () => {
 
         const definition = {
             a: {
@@ -768,10 +700,9 @@ describe('usage()', () => {
         expect(result).to.contain('-a');
         expect(result).to.contain('-b, --beta');
         expect(result).to.contain('-c, --code');
-        done();
     });
 
-    it('formatted usage message orders shows default values', (done) => {
+    it('formatted usage message orders shows default values', async () => {
 
         const definition = {
             aa: {
@@ -799,6 +730,5 @@ describe('usage()', () => {
         expect(result).to.contain('(b)');
         expect(result).to.contain('-c, --code');
         expect(result).to.contain('(c)');
-        done();
     });
 });
