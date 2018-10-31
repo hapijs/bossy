@@ -2,6 +2,8 @@
 
 // Load modules
 
+const Tty = require('tty');
+
 const Bossy = require('../');
 const Code = require('code');
 const Lab = require('lab');
@@ -620,7 +622,6 @@ describe('usage()', () => {
             }
         };
 
-        const Tty = require('tty');
         const currentIsAtty = Tty.isatty;
 
         Tty.isatty = () => {
@@ -645,7 +646,6 @@ describe('usage()', () => {
             }
         };
 
-        const Tty = require('tty');
         const currentIsAtty = Tty.isatty;
 
         Tty.isatty = () => {
