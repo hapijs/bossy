@@ -28,7 +28,7 @@ describe('parse()', () => {
 
     it('parses command line', () => {
 
-        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
+        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 -f arg1 --filter.a a --filter.b b arg2 arg3';
         const definition = {
             a: {
                 type: 'boolean'
@@ -65,6 +65,10 @@ describe('parse()', () => {
                 type: 'string',
                 default: 'hello',
                 alias: 'H'
+            },
+            i: {
+                type: 'object',
+                alias: 'filter'
             }
         };
 
@@ -79,6 +83,8 @@ describe('parse()', () => {
             d: ['x', '2'],
             e: [1, 2, 3, 4, 6, 7],
             f: 'arg1',
+            i : { a: 'a', b: 'b' },
+            filter : { a: 'a', b: 'b' },
             _: ['arg2', 'arg3'],
             aa: true,
             h: 'hello',
@@ -508,6 +514,83 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv.message).to.contain('Unknown option: b');
+    });
+
+    it('allows object type', () => {
+
+        const line = '--filter.a production --filter.b abc';
+
+        const definition = {
+            f: {
+                type: 'object',
+                alias: 'filter'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ f: { a : 'production', b: 'abc' }, filter: { a: 'production', b: 'abc' } });
+    });
+
+    it('allows object type with default value', () => {
+
+        const line = '--filter.b abc';
+
+        const definition = {
+            f: {
+                type: 'object',
+                alias: 'filter',
+                default: {
+                    env: 'production'
+                }
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ f: { env : 'production', b: 'abc' }, filter: { env: 'production', b: 'abc' } });
+    });
+
+    it('allows nested values in object type', () => {
+
+        const line = '--filter.db.mysql.host localhost --filter.db.mysql.password abc';
+
+        const definition = {
+            f: {
+                type: 'object',
+                alias: 'filter'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ f: { db: { mysql: { host : 'localhost', password: 'abc' } } }, filter: { db: { mysql: { host : 'localhost', password: 'abc' } } } });
+    });
+
+    it('throws on object input', () => {
+
+        const line = '--credentials.db.mysql.host localhost --credentials.db.mysql.password abc';
+
+        const definition = {
+            c: {
+                type: 'string',
+                alias: 'credentials'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv.message).to.equal('Unknown option: credentials.db.mysql.host');
+    });
+
+    it('displays unrecognized arguments in error message on unknown object input', () => {
+
+        const line = '--credentials.db.mysql.host localhost --credentials.db.mysql.password abc';
+
+        const definition = {
+            c: {
+                type: 'string'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv.message).to.equal('Unknown option: credentials.db.mysql.host');
     });
 
     it('throws on invalid input ', () => {
