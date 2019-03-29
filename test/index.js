@@ -620,9 +620,13 @@ describe('usage()', () => {
 
         const currentIsAtty = Tty.isatty;
 
+        let count = 0;
         Tty.isatty = () => {
 
-            Tty.isatty = currentIsAtty;
+            if (++count === 2) {
+                Tty.isatty = currentIsAtty;
+            }
+
             return true;
         };
 
