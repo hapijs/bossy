@@ -1,26 +1,18 @@
 {
-  "name": "bossy",
+  "name": "@hapi/bossy",
   "description": "Command line options parser",
   "version": "4.0.3",
   "repository": "git://github.com/hapijs/bossy",
   "main": "lib/index.js",
-  "keywords": [
-    "cli",
-    "command line",
-    "options",
-    "parser"
-  ],
-  "engines": {
-    "node": ">=8.12.0"
-  },
+  "keywords": ["cli", "command line", "options", "parser"],
   "dependencies": {
-    "boom": "7.x.x",
-    "hoek": "6.x.x",
-    "joi": "14.x.x"
+    "@hapi/boom": "7.x.x",
+    "@hapi/hoek": "6.x.x",
+    "@hapi/joi": "14.x.x"
   },
   "devDependencies": {
     "code": "5.x.x",
-    "lab": "17.x.x"
+    "lab": "18.x.x"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L",
