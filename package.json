@@ -1,10 +1,15 @@
 {
   "name": "@hapi/bossy",
   "description": "Command line options parser",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "repository": "git://github.com/hapijs/bossy",
   "main": "lib/index.js",
-  "keywords": ["cli", "command line", "options", "parser"],
+  "keywords": [
+    "cli",
+    "command line",
+    "options",
+    "parser"
+  ],
   "dependencies": {
     "@hapi/boom": "7.x.x",
     "@hapi/hoek": "6.x.x",
