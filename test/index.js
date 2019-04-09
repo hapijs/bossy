@@ -3,8 +3,8 @@
 const Tty = require('tty');
 
 const Bossy = require('../');
-const Code = require('code');
-const Lab = require('lab');
+const Code = require('@hapi/code');
+const Lab = require('@hapi/lab');
 
 
 const { describe, it } = exports.lab = Lab.script();
