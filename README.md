@@ -9,9 +9,9 @@ Command line options parser.
 ## Usage
 
 ```js
-var Bossy = require('bossy');
+const Bossy = require('@hapi/bossy');
 
-var definition = {
+const definition = {
     h: {
         description: 'Show help',
         alias: 'help',
@@ -23,8 +23,7 @@ var definition = {
     }
 };
 
-
-var args = Bossy.parse(definition);
+const args = Bossy.parse(definition);
 
 if (args instanceof Error) {
     console.error(args.message);
