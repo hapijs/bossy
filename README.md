@@ -4,7 +4,7 @@
 
 Command line options parser.
 
-[![Build Status](https://secure.travis-ci.org/hapijs/bossy.png)](http://travis-ci.org/hapijs/bossy)
+[![Build Status](https://secure.travis-ci.org/hapijs/bossy.png)](http://travis-ci.org/hapijs/bossy) [![Greenkeeper badge](https://badges.greenkeeper.io/hapijs/bossy.svg)](https://greenkeeper.io/)
 
 ## Usage
 
