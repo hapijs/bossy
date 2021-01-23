@@ -300,6 +300,47 @@ describe('parse()', () => {
         expect(argv).to.equal({ a: null, _: [''] });
     });
 
+    it('allows a boolean to be negated', () => {
+
+        const line = '--no-a';
+        const definition = {
+            a: {
+                type: 'boolean',
+                default: true
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ a: false });
+    });
+
+    it('doesn\'t assume "no-" to denote boolean negation', () => {
+
+        const line = '--no-a';
+        const definition = {
+            'no-a': {
+                type: 'boolean'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ 'no-a': true });
+    });
+
+    it('only negates booleans', () => {
+
+        const line = '--no-a';
+        const definition = {
+            'a': {
+                type: 'string'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+        expect(argv.message).to.contain('Unknown option: no-a');
+    });
+
     it('allows custom argv to be passed in options in place of process.argv', () => {
 
         let argv = ['-a', '1-2,5'];
