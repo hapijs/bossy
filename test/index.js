@@ -341,6 +341,23 @@ describe('parse()', () => {
         expect(argv.message).to.contain('Unknown option: no-a');
     });
 
+    it('prefers explicit argument to boolean negation in a conflict', () => {
+
+        const line = '--no-a str';
+        const definition = {
+            'a': {
+                type: 'boolean',
+                default: true
+            },
+            'no-a': {
+                type: 'string'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ a: true, 'no-a': 'str' });
+    });
+
     it('allows custom argv to be passed in options in place of process.argv', () => {
 
         let argv = ['-a', '1-2,5'];
