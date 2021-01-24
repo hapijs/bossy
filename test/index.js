@@ -314,6 +314,21 @@ describe('parse()', () => {
         expect(argv).to.equal({ a: false });
     });
 
+    it('allows a boolean that has already been passed to be negated and vice-versa', () => {
+
+        const definition = {
+            a: {
+                type: 'boolean'
+            }
+        };
+
+        const argv1 = parse('-a --no-a', definition);
+        expect(argv1).to.equal({ a: false });
+
+        const argv2 = parse('--no-a -a', definition);
+        expect(argv2).to.equal({ a: true });
+    });
+
     it('doesn\'t assume "no-" to denote boolean negation', () => {
 
         const line = '--no-a';
@@ -331,7 +346,7 @@ describe('parse()', () => {
 
         const line = '--no-a';
         const definition = {
-            'a': {
+            a: {
                 type: 'string'
             }
         };
@@ -345,7 +360,7 @@ describe('parse()', () => {
 
         const line = '--no-a str';
         const definition = {
-            'a': {
+            a: {
                 type: 'boolean',
                 default: true
             },
