@@ -433,6 +433,19 @@ describe('parse()', () => {
         expect(argv).to.equal({ x: { y: 1 } });
     });
 
+    it('protects from prototype poisoning in dot separated object path', () => {
+
+        const line = '--x.__proto__.y 1 --x.z 2 --x.__proto__.w 3';
+        const definition = {
+            x: {
+                type: 'object'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { z: 2 } });
+    });
+
     it('allows custom argv to be passed in options in place of process.argv', () => {
 
         let argv = ['-a', '1-2,5'];
