@@ -16,7 +16,7 @@ describe('parse()', () => {
     const parse = function (line, definition, options) {
 
         const orig = process.argv;
-        process.argv = [].concat('ignore', 'ignore', line.split(' '));
+        process.argv = [].concat('ignore', 'ignore', Array.isArray(line) ? line : line.split(' '));
         const result = Bossy.parse(definition, options);
         process.argv = orig;
         return result;
@@ -24,7 +24,7 @@ describe('parse()', () => {
 
     it('parses command line', () => {
 
-        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
+        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 --i.x 2 --i.y.z one -f arg1 arg2 arg3';
         const definition = {
             a: {
                 type: 'boolean'
@@ -61,6 +61,10 @@ describe('parse()', () => {
                 type: 'string',
                 default: 'hello',
                 alias: 'H'
+            },
+            i: {
+                type: 'object',
+                default: { x: 1, w: 3 }
             }
         };
 
@@ -78,7 +82,8 @@ describe('parse()', () => {
             _: ['arg2', 'arg3'],
             aa: true,
             h: 'hello',
-            H: 'hello'
+            H: 'hello',
+            i: { x: 2, y: { z: 'one' }, w: 3 }
         });
     });
 
@@ -298,6 +303,134 @@ describe('parse()', () => {
 
         const argv = parse(line, definition);
         expect(argv).to.equal({ a: null, _: [''] });
+    });
+
+    it('allows an object to be built from JSON', () => {
+
+        const line = ['--x', '{ "a": 1, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
+        const definition = {
+            x: {
+                type: 'object'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { a: 1, b: { c: 2, d: 3 }, e: ['four'], f: false, g: null } });
+    });
+
+    it('merges into object defaults', () => {
+
+        const line = ['--x.b', '2', '--x', '{ "c": 3 }'];
+        const definition = {
+            x: {
+                type: 'object',
+                default: { a: 1, b: 4 }
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { a: 1, b: 2, c: 3 } });
+        expect(definition.x.default).to.equal({ a: 1, b: 4 }); // No mutation of defaults despite merge
+    });
+
+    it('only sets object arg types deeply', () => {
+
+        const line = '--a.b str';
+        const definition = {
+            a: {
+                type: 'string'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+        expect(argv.message).to.contain('Unknown option: a.b');
+    });
+
+    it('requires object args be objects', () => {
+
+        const definition = {
+            a: {
+                type: 'object'
+            }
+        };
+
+        const line1 = '--a str';
+        const argv1 = parse(line1, definition);
+        expect(argv1).to.be.instanceof(Error);
+        expect(argv1.message).to.contain('Invalid value for option: a (must be an object or array)');
+
+        const line2 = '--a null';
+        const argv2 = parse(line2, definition);
+        expect(argv2).to.be.instanceof(Error);
+        expect(argv2.message).to.contain('Invalid value for option: a (must be an object or array)');
+    });
+
+    it('handles missing arg for object-looking option', () => {
+
+        const line = '--y.z str';
+        const definition = {
+            x: {
+                type: 'object'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+        expect(argv.message).to.contain('Unknown option: y.z');
+    });
+
+    it('requires object arg default be an array or object', () => {
+
+        const definition = (def) => ({
+            x: {
+                type: 'object',
+                default: def
+            }
+        });
+
+        expect(() => parse('', definition([]))).to.not.throw();
+        expect(() => parse('', definition({}))).to.not.throw();
+        expect(() => parse('', definition('str'))).to.throw(/must be one of \[array, object\]/);
+        expect(() => parse('', definition(null))).to.throw(/must be one of \[array, object\]/);
+        expect(() => parse('', definition(100))).to.throw(/must be one of \[array, object\]/);
+    });
+
+    it('does not allow passing valid option for object args', () => {
+
+        const definition = {
+            x: {
+                type: 'object',
+                valid: { x: 1 }
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.valid" is not allowed/);
+    });
+
+    it('does not allow passing multiple option for object args', () => {
+
+        const definition = {
+            x: {
+                type: 'object',
+                multiple: true
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.multiple" is not allowed/);
+    });
+
+    it('protects from prototype poisoning when parsing JSON for object args', () => {
+
+        const line = ['--x', '{ "y": 1, "__proto__": { "z": 2 } }'];
+        const definition = {
+            x: {
+                type: 'object'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { y: 1 } });
     });
 
     it('allows custom argv to be passed in options in place of process.argv', () => {

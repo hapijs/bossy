@@ -63,7 +63,12 @@ h: {
 }
 ```
 
-* `type`: Available types are: `boolean`, `range`, `number`, `string`, and `help`.  Defaults to `string`.
+* `type`: Available types are: `boolean`, `range`, `number`, `string`, `object`, and `help`.  Defaults to `string`.
+
+    The `object` type allows building an object using command line arguments that utilize
+    dot-separated (`.`) paths, and optionally JSON. For example, an object argument named
+    `pet` might be built from `--pet '{ "type": "dog" }' --pet.name Maddie`, resulting in
+    the parsing output `{ pet: { type: 'dog', name: 'Maddie' } }`.
 
     `help` is a special type that allows the switch to be executed even though
     other paramters are required. Use case is to display a help message and
