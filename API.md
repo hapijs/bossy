@@ -64,19 +64,19 @@ line argument.  Each argument key supports the following properties:
     }
     ```
 
-* `type`: Available types are: `boolean`, `range`, `number`, `string`, `object`, and `help`.  Defaults to `string`.
+* `type`: Available types are: `boolean`, `range`, `number`, `string`, `json`, and `help`.  Defaults to `string`.
 
     `help` is a special type that allows the switch to be executed even though
     other paramters are required. Use case is to display a help message and
     quit. This will bypass all other errors, so be sure to capture it. It
     behaves like a `boolean`.
 
-    The `object` type allows building an object using command line arguments that utilize
-    dot-separated (`.`) paths, and optionally JSON. For example, an object argument named
+    The `json` type allows building an object using command line arguments that utilize
+    dot-separated (`.`) paths and JSON values. For example, an object argument named
     `pet` might be built from `--pet '{ "type": "dog" }' --pet.name Maddie`, resulting in
     the parsing output `{ pet: { type: 'dog', name: 'Maddie' } }`.  The contents of the
     flags are deeply merged together in the order they were specified.  Additionally,
-    JSON primtives (i.e. `null`, booleans, and numbers) are treated as strings by default,
+    JSON primitives (i.e. `null`, booleans, and numbers) are treated as strings by default,
     though this behavior may be controlled with the `parsePrimitives` option documented
     below.  The following example demonstrates the default behavior:
 
@@ -91,7 +91,7 @@ line argument.  Each argument key supports the following properties:
     ```
 
 * `multiple` : Boolean to indicate if the same argument can be provided multiple times. If true, the parsed value
-will always be an array of `type`'s. Defaults to `false`. Does not apply to `object` type arguments.
+will always be an array of `type`'s. Defaults to `false`. Does not apply to `json` type arguments.
 
 * `description`: Description message that will be returned with usage information.
 
@@ -99,6 +99,6 @@ will always be an array of `type`'s. Defaults to `false`. Does not apply to `obj
 
 * `default`: A default value to assign to the argument if its not provided as an argument.
 
-* `valid`: A value or array of values that the argument is allowed to equal. Does not apply to `object` type arguments.
+* `valid`: A value or array of values that the argument is allowed to equal. Does not apply to `json` type arguments.
 
-* `parsePrimitives`: When `true`, arguments of the `object` type will parse JSON primitives rather than treat them as strings.  For example, `--pet.name null` will result in the output `{ pet: { name: 'null' } }` by default.  However, when `parsePrimitives` is `true`, the same input would result in the output `{ pet: { name: null } }`.  The same applies for other JSON primitives too, i.e. booleans and numbers.  When this option is `true`, users may represent string values as JSON in order to avoid ambiguity, e.g. `--pet.name '"null"'`.  It's recommended that applications using this option document the behavior for their users.
+* `parsePrimitives`: When `true`, arguments of the `json` type will parse JSON primitives rather than treat them as strings.  For example, `--pet.name null` will result in the output `{ pet: { name: 'null' } }` by default.  However, when `parsePrimitives` is `true`, the same input would result in the output `{ pet: { name: null } }`.  The same applies for other JSON primitives too, i.e. booleans and numbers.  When this option is `true`, users may represent string values as JSON in order to avoid ambiguity, e.g. `--pet.name '"null"'`.  It's recommended that applications using this option document the behavior for their users.

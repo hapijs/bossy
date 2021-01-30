@@ -63,7 +63,7 @@ describe('parse()', () => {
                 alias: 'H'
             },
             i: {
-                type: 'object',
+                type: 'json',
                 default: { x: 1, w: 3 }
             }
         };
@@ -305,12 +305,12 @@ describe('parse()', () => {
         expect(argv).to.equal({ a: null, _: [''] });
     });
 
-    it('allows an object to be built from JSON, parsing primitives.', () => {
+    it('allows json to build an object, parsing primitives.', () => {
 
         const line = ['--x', '{ "a": null, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
         const definition = {
             x: {
-                type: 'object',
+                type: 'json',
                 parsePrimitives: true
             }
         };
@@ -319,12 +319,12 @@ describe('parse()', () => {
         expect(argv).to.equal({ x: { a: null, b: { c: 2, d: 3 }, e: ['four'], f: false, g: null } });
     });
 
-    it('allows an object to be built from JSON, not parsing primitives.', () => {
+    it('allows json to build an object, not parsing primitives.', () => {
 
         const line = ['--x', '{ "a": null, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
         const definition = {
             x: {
-                type: 'object',
+                type: 'json',
                 parsePrimitives: false
             }
         };
@@ -333,12 +333,12 @@ describe('parse()', () => {
         expect(argv).to.equal({ x: { a: null, b: { c: 2, d: '3' }, e: ['four'], f: 'false', g: 'null' } });
     });
 
-    it('allows an object to be built, by default not parsing primitives.', () => {
+    it('allows json to build an object, by default not parsing primitives.', () => {
 
         const line = '--x.a null --x.b 2 --x.c true --x.d false --x.e str';
         const definition = {
             x: {
-                type: 'object'
+                type: 'json'
             }
         };
 
@@ -346,12 +346,12 @@ describe('parse()', () => {
         expect(argv).to.equal({ x: { a: 'null', b: '2', c: 'true', d: 'false', e: 'str' } });
     });
 
-    it('merges into object defaults', () => {
+    it('merges into json object defaults', () => {
 
         const line = ['--x.b', 'two', '--x', '{ "c": 3 }'];
         const definition = {
             x: {
-                type: 'object',
+                type: 'json',
                 default: { a: 1, b: 4 }
             }
         };
@@ -361,7 +361,7 @@ describe('parse()', () => {
         expect(definition.x.default).to.equal({ a: 1, b: 4 }); // No mutation of defaults despite merge
     });
 
-    it('only sets object arg types deeply', () => {
+    it('only sets json arg types deeply', () => {
 
         const line = '--a.b str';
         const definition = {
@@ -375,11 +375,11 @@ describe('parse()', () => {
         expect(argv.message).to.contain('Unknown option: a.b');
     });
 
-    it('requires object args be objects', () => {
+    it('requires json args be objects', () => {
 
         const definition = {
             a: {
-                type: 'object',
+                type: 'json',
                 parsePrimitives: true
             }
         };
@@ -395,12 +395,12 @@ describe('parse()', () => {
         expect(argv2.message).to.contain('Invalid value for option: a (must be an object or array)');
     });
 
-    it('handles missing arg for object-looking option', () => {
+    it('handles missing arg for json-looking option', () => {
 
         const line = '--y.z str';
         const definition = {
             x: {
-                type: 'object'
+                type: 'json'
             }
         };
 
@@ -409,11 +409,11 @@ describe('parse()', () => {
         expect(argv.message).to.contain('Unknown option: y.z');
     });
 
-    it('requires object arg default be an array or object', () => {
+    it('requires json arg default be an array or object', () => {
 
         const definition = (def) => ({
             x: {
-                type: 'object',
+                type: 'json',
                 default: def
             }
         });
@@ -425,11 +425,11 @@ describe('parse()', () => {
         expect(() => parse('', definition(100))).to.throw(/must be one of \[array, object\]/);
     });
 
-    it('does not allow passing valid option for object args', () => {
+    it('does not allow passing valid option for json args', () => {
 
         const definition = {
             x: {
-                type: 'object',
+                type: 'json',
                 valid: { x: 1 }
             }
         };
@@ -437,11 +437,11 @@ describe('parse()', () => {
         expect(() => parse('', definition)).to.throw(/"x\.valid" is not allowed/);
     });
 
-    it('does not allow passing multiple option for object args', () => {
+    it('does not allow passing multiple option for json args', () => {
 
         const definition = {
             x: {
-                type: 'object',
+                type: 'json',
                 multiple: true
             }
         };
@@ -449,7 +449,7 @@ describe('parse()', () => {
         expect(() => parse('', definition)).to.throw(/"x\.multiple" is not allowed/);
     });
 
-    it('does not allow passing parsePrimitives option for non-object args', () => {
+    it('does not allow passing parsePrimitives option for non-json args', () => {
 
         const definition = {
             x: {
@@ -461,12 +461,12 @@ describe('parse()', () => {
         expect(() => parse('', definition)).to.throw(/"x\.parsePrimitives" is not allowed/);
     });
 
-    it('protects from prototype poisoning when parsing JSON for object args', () => {
+    it('protects from prototype poisoning when parsing JSON for json args', () => {
 
         const line = ['--x', '{ "y": 1, "__proto__": { "z": 2 } }'];
         const definition = {
             x: {
-                type: 'object'
+                type: 'json'
             }
         };
 
@@ -474,12 +474,12 @@ describe('parse()', () => {
         expect(argv).to.equal({ x: { y: 1 } });
     });
 
-    it('protects from prototype poisoning in dot-separated object path', () => {
+    it('protects from prototype poisoning in dot-separated json path', () => {
 
         const line = '--x.__proto__.y one --x.z two --x.__proto__.w three';
         const definition = {
             x: {
-                type: 'object'
+                type: 'json'
             }
         };
 
