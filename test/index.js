@@ -83,7 +83,7 @@ describe('parse()', () => {
             aa: true,
             h: 'hello',
             H: 'hello',
-            i: { x: 2, y: { z: 'one' }, w: 3 }
+            i: { x: '2', y: { z: 'one' }, w: 3 }
         });
     });
 
@@ -305,9 +305,37 @@ describe('parse()', () => {
         expect(argv).to.equal({ a: null, _: [''] });
     });
 
-    it('allows an object to be built from JSON', () => {
+    it('allows an object to be built from JSON, parsing primitives.', () => {
 
-        const line = ['--x', '{ "a": 1, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
+        const line = ['--x', '{ "a": null, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
+        const definition = {
+            x: {
+                type: 'object',
+                parsePrimitives: true
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { a: null, b: { c: 2, d: 3 }, e: ['four'], f: false, g: null } });
+    });
+
+    it('allows an object to be built from JSON, not parsing primitives.', () => {
+
+        const line = ['--x', '{ "a": null, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
+        const definition = {
+            x: {
+                type: 'object',
+                parsePrimitives: false
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { a: null, b: { c: 2, d: '3' }, e: ['four'], f: 'false', g: 'null' } });
+    });
+
+    it('allows an object to be built, by default not parsing primitives.', () => {
+
+        const line = '--x.a null --x.b 2 --x.c true --x.d false --x.e str';
         const definition = {
             x: {
                 type: 'object'
@@ -315,12 +343,12 @@ describe('parse()', () => {
         };
 
         const argv = parse(line, definition);
-        expect(argv).to.equal({ x: { a: 1, b: { c: 2, d: 3 }, e: ['four'], f: false, g: null } });
+        expect(argv).to.equal({ x: { a: 'null', b: '2', c: 'true', d: 'false', e: 'str' } });
     });
 
     it('merges into object defaults', () => {
 
-        const line = ['--x.b', '2', '--x', '{ "c": 3 }'];
+        const line = ['--x.b', 'two', '--x', '{ "c": 3 }'];
         const definition = {
             x: {
                 type: 'object',
@@ -329,7 +357,7 @@ describe('parse()', () => {
         };
 
         const argv = parse(line, definition);
-        expect(argv).to.equal({ x: { a: 1, b: 2, c: 3 } });
+        expect(argv).to.equal({ x: { a: 1, b: 'two', c: 3 } });
         expect(definition.x.default).to.equal({ a: 1, b: 4 }); // No mutation of defaults despite merge
     });
 
@@ -351,7 +379,8 @@ describe('parse()', () => {
 
         const definition = {
             a: {
-                type: 'object'
+                type: 'object',
+                parsePrimitives: true
             }
         };
 
@@ -420,6 +449,18 @@ describe('parse()', () => {
         expect(() => parse('', definition)).to.throw(/"x\.multiple" is not allowed/);
     });
 
+    it('does not allow passing parsePrimitives option for non-object args', () => {
+
+        const definition = {
+            x: {
+                type: 'string',
+                parsePrimitives: false
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.parsePrimitives" is not allowed/);
+    });
+
     it('protects from prototype poisoning when parsing JSON for object args', () => {
 
         const line = ['--x', '{ "y": 1, "__proto__": { "z": 2 } }'];
@@ -433,9 +474,9 @@ describe('parse()', () => {
         expect(argv).to.equal({ x: { y: 1 } });
     });
 
-    it('protects from prototype poisoning in dot separated object path', () => {
+    it('protects from prototype poisoning in dot-separated object path', () => {
 
-        const line = '--x.__proto__.y 1 --x.z 2 --x.__proto__.w 3';
+        const line = '--x.__proto__.y one --x.z two --x.__proto__.w three';
         const definition = {
             x: {
                 type: 'object'
@@ -443,7 +484,7 @@ describe('parse()', () => {
         };
 
         const argv = parse(line, definition);
-        expect(argv).to.equal({ x: { z: 2 } });
+        expect(argv).to.equal({ x: { z: 'two' } });
     });
 
     it('allows custom argv to be passed in options in place of process.argv', () => {
