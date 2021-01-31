@@ -3,6 +3,7 @@
 const Tty = require('tty');
 
 const Bossy = require('../');
+const Hoek = require('@hapi/hoek');
 const Code = require('@hapi/code');
 const Lab = require('@hapi/lab');
 
@@ -461,6 +462,17 @@ describe('parse()', () => {
         expect(() => parse('', definition)).to.throw(/"x\.parsePrimitives" is not allowed/);
     });
 
+    it('does not allow json args to have a deep flag name', () => {
+
+        const definition = {
+            'x.y': {
+                type: 'json'
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.y\.type" contains an invalid value/);
+    });
+
     it('protects from prototype poisoning when parsing JSON for json args', () => {
 
         const line = ['--x', '{ "y": 1, "__proto__": { "z": 2 } }'];
@@ -621,6 +633,44 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0, 1, 2, 5, 8, 9] });
+    });
+
+    it('allows non-json args to have a deep flag name', () => {
+
+        const line = '--a.x --b.x 1 --c.x str --d.x 1-2';
+        const definition = {
+            'a.x': {
+                type: 'boolean'
+            },
+            'b.x': {
+                type: 'number'
+            },
+            'c.x': {
+                type: 'string'
+            },
+            'd.x': {
+                type: 'range'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ 'a.x': true, 'b.x': 1, 'c.x': 'str', 'd.x': [1, 2] });
+    });
+
+    it('prefers non-json arg with deep flag name to json arg with the same base', () => {
+
+        const line = '--a.x 1';
+        const definition = {
+            a: {
+                type: 'json'
+            },
+            'a.x': {
+                type: 'number'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ a: undefined, 'a.x': 1 });
     });
 
     it('returns error message when a value isn\'t found in the valid property', () => {
@@ -917,5 +967,122 @@ describe('usage()', () => {
         expect(result).to.contain('(b)');
         expect(result).to.contain('-c, --code');
         expect(result).to.contain('(c)');
+    });
+});
+
+describe('object()', () => {
+
+    const parse = function (line, definition) {
+
+        return Bossy.parse(definition, {
+            argv: [].concat('ignore', 'ignore', Array.isArray(line) ? line : line.split(' '))
+        });
+    };
+
+    it('rolls-up parsed arguments with deep paths into an object', () => {
+
+        const line = ['--x.a', '--x.b.c', '1', '--x.d.e', 'str', '--x.d.f', '1-2', '--x', '{ "b": { "c": "10" }, "d": { "g": "h" } }'];
+        const definition = {
+            x: {
+                type: 'json'
+            },
+            'x.a': {
+                type: 'boolean'
+            },
+            'x.b.c': {
+                type: 'number'
+            },
+            'x.d.e': {
+                type: 'string'
+            },
+            'x.d.f': {
+                type: 'range'
+            }
+        };
+
+        const argv = parse(line, definition);
+        const snapshot = Hoek.clone(argv);
+
+        expect(argv).to.equal({
+            'x.a': true,
+            'x.b.c': 1,
+            'x.d.e': 'str',
+            'x.d.f': [
+                1,
+                2
+            ],
+            x: {
+                b: {
+                    c: '10'
+                },
+                d: {
+                    g: 'h'
+                }
+            },
+            _: [
+                'ignore',
+                'ignore'
+            ]
+        });
+
+        expect(Bossy.object('x', argv)).to.equal({
+            a: true,
+            b: {
+                c: 1
+            },
+            d: {
+                e: 'str',
+                f: [
+                    1,
+                    2
+                ],
+                g: 'h'
+            }
+        });
+
+        expect(argv).to.equal(snapshot); // No mutation despite merge
+    });
+
+    it('merges values shallow to deep', () => {
+
+        const x = Bossy.object('x', {
+            'x.a.b.c': 1,
+            'x.d.e': 'two',
+            'x.f': true,
+            x: {
+                a: {
+                    b: {
+                        c: 2,
+                        g: 'two'
+                    }
+                },
+                d: { e: 'three', h: 3 },
+                f: false,
+                i: null
+            }
+        });
+
+        expect(x).to.equal({
+            a: {
+                b: {
+                    c: 1,
+                    g: 'two'
+                }
+            },
+            d: { e: 'two', h: 3 },
+            f: true,
+            i: null
+        });
+    });
+
+    it('defaults initial value to an empty object', () => {
+
+        expect(Bossy.object('x', {})).to.equal({});
+        expect(Bossy.object('x', { 'x.a': 1 })).to.equal({ a: 1 });
+    });
+
+    it('does not allow rolling-up a deep flag', () => {
+
+        expect(() => Bossy.object('x.y', { 'x.y': {} })).to.throw('Cannot build an object at a deep path: x.y (contains a dot)');
     });
 });

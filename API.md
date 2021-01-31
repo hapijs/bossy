@@ -50,6 +50,33 @@ include the usage value formatted at the top of the message.
 Options accepts the following keys:
 * `colors` - Determines if colors are enabled when formatting usage.  Defaults to whatever TTY supports.
 
+### `object(name, parsed)`
+
+Un-flattens dot-separated arguments based at `name` from `Bossy.parse()`'s output into an object.
+
+```js
+const Bossy = require('@hapi/bossy');
+
+const definition = {
+    'pet.name': {
+        type: 'string'
+    },
+    'pet.age': {
+        type: 'number'
+    }
+};
+
+// Example CLI args: --pet.name Maddie --pet.age 5
+
+const parsed = Bossy.parse(definition);     // { 'pet.name': 'Maddie', 'pet.age': 5 }
+
+if (parsed instanceof Error) {
+    console.error(parsed.message);
+    return;
+}
+
+const pet = Bossy.object('pet', parsed);    // { name: 'Maddie', age: 5 }
+```
 
 ## Definition Object
 
@@ -81,7 +108,7 @@ line argument.  Each argument key supports the following properties:
     below.  The following example demonstrates the default behavior:
 
     ```sh
-    # CLI Input
+    # CLI input
     create-pet --pet.type kangaroo --pet.legs 2 --pet.mammal true \
                --pet '{ "name": "Maddie", "type": "dog" }' --pet.legs 4
     ```
