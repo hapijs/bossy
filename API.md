@@ -103,9 +103,9 @@ line argument.  Each argument key supports the following properties:
     `pet` might be built from `--pet '{ "type": "dog" }' --pet.name Maddie`, resulting in
     the parsing output `{ pet: { type: 'dog', name: 'Maddie' } }`.  The contents of the
     flags are deeply merged together in the order they were specified.  Additionally,
-    JSON primitives (i.e. `null`, booleans, and numbers) are treated as strings by default,
-    though this behavior may be controlled with the `parsePrimitives` option documented
-    below.  The following example demonstrates the default behavior:
+    JSON primitives (i.e. `null`, booleans, and numbers) and non-JSON are treated as strings
+    by default, though this behavior may be controlled with the `parsePrimitives` option
+    documented below.  The following example demonstrates the default behavior:
 
     ```sh
     # CLI input
@@ -128,4 +128,57 @@ will always be an array of `type`'s. Defaults to `false`. Does not apply to `jso
 
 * `valid`: A value or array of values that the argument is allowed to equal. Does not apply to `json` type arguments.
 
-* `parsePrimitives`: When `true`, arguments of the `json` type will parse JSON primitives rather than treat them as strings.  For example, `--pet.name null` will result in the output `{ pet: { name: 'null' } }` by default.  However, when `parsePrimitives` is `true`, the same input would result in the output `{ pet: { name: null } }`.  The same applies for other JSON primitives too, i.e. booleans and numbers.  When this option is `true`, users may represent string values as JSON in order to avoid ambiguity, e.g. `--pet.name '"null"'`.  It's recommended that applications using this option document the behavior for their users.
+* `parsePrimitives`: A value of `false`, `true`, or `'strict'` used to control the treatment of input to `json` type arguments.  Defaults to `false`.  Each of the settings are described below:
+
+  - `false` - JSON primitives (i.e. `null`, booleans, and numbers) are treated as strings, non-JSON input is interpreted as a string, and the input may be a JSON array or object.  This is the default behavior.
+
+    ```sh
+    # CLI input
+    create-pet --pet.type kangaroo --pet.legs 2 --pet.mammal true \
+                --pet '{ "name": "Maddie", "type": "dog" }' --pet.legs 4
+    ```
+    ```js
+    // Parsing output
+    { pet: { name: 'Maddie', type: 'dog', legs: '4', mammal: 'true' } }
+    ```
+
+  - `true` - JSON primitives are parsed, non-JSON input is interpreted as a string, and the input may be a JSON array or object.
+
+    For example, when `parsePrimitives` is `false`, `--pet.name null` will result in the output `{ pet: { name: 'null' } }`.  However, when `parsePrimitives` is `true`, the same input would result in the output `{ pet: { name: null } }`.  The same applies for other JSON primitives too, i.e. booleans and numbers.  When this option is `true`, users may represent string values as JSON in order to avoid ambiguity, e.g. `--pet.name '"null"'`.  It's recommended that applications using this option document the behavior for their users.
+
+    ```sh
+    # CLI input
+    create-pet --pet.type kangaroo --pet.legs 2 --pet.mammal true \
+               --pet '{ "name": "Maddie", "type": "dog" }' --pet.legs 4
+    ```
+    ```js
+    // Parsing output
+    { pet: { name: 'Maddie', type: 'dog', legs: 4, mammal: true } }
+    ```
+
+  - `'strict'` - JSON primitives are parsed, non-JSON input is not allowed, and the input may not be a JSON array or object.  In other words, the user may only set primitive values, and they are required to be valid JSON.
+
+    When this option is used, users must represent string values as JSON, e.g. `--pet.name '"Maddie"'`.  It's recommended that applications using this option document the behavior for their users.
+
+    ```sh
+    # CLI input
+    create-pet --pet.type '"kangaroo"' --pet.legs 2 --pet.mammal true
+    ```
+    ```js
+    // Parsing output
+    { pet: { type: 'kangaroo', legs: 2, mammal: true } }
+    ```
+
+    The following input would result in an error because the input to `--pet.type` is invalid JSON:
+
+    ```sh
+    # CLI input
+    create-pet --pet.type kangaroo --pet.legs 2 --pet.mammal true
+    ```
+
+    The following input would result in an error because the input to `--pet` does not represent a JSON primitive:
+
+    ```sh
+    # CLI input
+    create-pet --pet '{ "name": "Maddie", "type": "dog" }' --pet.type '"kangaroo"'
+    ```

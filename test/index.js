@@ -308,7 +308,13 @@ describe('parse()', () => {
 
     it('allows json to build an object, parsing primitives.', () => {
 
-        const line = ['--x', '{ "a": null, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
+        const line = [
+            '--x', '{ "a": null, "b": { "c": 2 } }',
+            '--x.b.d', '3',
+            '--x.e', '["four"]',
+            '--x.f', 'false',
+            '--x.g', 'null'
+        ];
         const definition = {
             x: {
                 type: 'json',
@@ -317,7 +323,85 @@ describe('parse()', () => {
         };
 
         const argv = parse(line, definition);
-        expect(argv).to.equal({ x: { a: null, b: { c: 2, d: 3 }, e: ['four'], f: false, g: null } });
+        expect(argv).to.equal({
+            x: {
+                a: null,
+                b: { c: 2, d: 3 },
+                e: ['four'],
+                f: false,
+                g: null
+            }
+        });
+    });
+
+    it('allows json to build an object, parsing primitives strictly.', () => {
+
+        const line = [
+            '--x.a.b', '3',
+            '--x.a.c', '4.2e2',
+            '--x.d', 'false',
+            '--x.e', 'true',
+            '--x.f', 'null',
+            '--x.g', '"str"',
+            '--x.a.c', '4.2'
+        ];
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: 'strict'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({
+            x: {
+                a: { b: 3, c: 4.2 },
+                d: false,
+                e: true,
+                f: null,
+                g: 'str'
+            }
+        });
+    });
+
+    it('does not allow json arg to contain invalid JSON, parsing primitives strictly.', () => {
+
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: 'strict'
+            }
+        };
+
+        const line1 = ['--x.a', 'str'];
+        const argv1 = parse(line1, definition);
+        expect(argv1).to.be.instanceof(Error);
+        expect(argv1.message).to.equal('Invalid value for option: x.a (invalid JSON)');
+
+        const line2 = ['--x.a', '{ "b": null'];
+        const argv2 = parse(line2, definition);
+        expect(argv2).to.be.instanceof(Error);
+        expect(argv2.message).to.equal('Invalid value for option: x.a (invalid JSON)');
+    });
+
+    it('does not allow json arg to contain an array or object, parsing primitives strictly.', () => {
+
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: 'strict'
+            }
+        };
+
+        const line1 = ['--x.a', '[1, 2]'];
+        const argv1 = parse(line1, definition);
+        expect(argv1).to.be.instanceof(Error);
+        expect(argv1.message).to.equal('Invalid value for option: x.a (non-primitive JSON value)');
+
+        const line2 = ['--x.a', '{ "b": null }'];
+        const argv2 = parse(line2, definition);
+        expect(argv2).to.be.instanceof(Error);
+        expect(argv2.message).to.equal('Invalid value for option: x.a (non-primitive JSON value)');
     });
 
     it('allows json to build an object, not parsing primitives.', () => {
