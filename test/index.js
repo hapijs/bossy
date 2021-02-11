@@ -3,6 +3,7 @@
 const Tty = require('tty');
 
 const Bossy = require('../');
+const Hoek = require('@hapi/hoek');
 const Code = require('@hapi/code');
 const Lab = require('@hapi/lab');
 
@@ -16,7 +17,7 @@ describe('parse()', () => {
     const parse = function (line, definition, options) {
 
         const orig = process.argv;
-        process.argv = [].concat('ignore', 'ignore', line.split(' '));
+        process.argv = [].concat('ignore', 'ignore', Array.isArray(line) ? line : line.split(' '));
         const result = Bossy.parse(definition, options);
         process.argv = orig;
         return result;
@@ -24,7 +25,7 @@ describe('parse()', () => {
 
     it('parses command line', () => {
 
-        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 -f arg1 arg2 arg3';
+        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 --i.x 2 --i.y.z one -f arg1 arg2 arg3';
         const definition = {
             a: {
                 type: 'boolean'
@@ -61,6 +62,10 @@ describe('parse()', () => {
                 type: 'string',
                 default: 'hello',
                 alias: 'H'
+            },
+            i: {
+                type: 'json',
+                default: { x: 1, w: 3 }
             }
         };
 
@@ -78,7 +83,8 @@ describe('parse()', () => {
             _: ['arg2', 'arg3'],
             aa: true,
             h: 'hello',
-            H: 'hello'
+            H: 'hello',
+            i: { x: '2', y: { z: 'one' }, w: 3 }
         });
     });
 
@@ -373,6 +379,283 @@ describe('parse()', () => {
         expect(argv).to.equal({ a: true, 'no-a': 'str' });
     });
 
+    it('allows json to build an object, parsing primitives.', () => {
+
+        const line = [
+            '--x', '{ "a": null, "b": { "c": 2 } }',
+            '--x.b.d', '3',
+            '--x.e', '["four"]',
+            '--x.f', 'false',
+            '--x.g', 'null'
+        ];
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: true
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({
+            x: {
+                a: null,
+                b: { c: 2, d: 3 },
+                e: ['four'],
+                f: false,
+                g: null
+            }
+        });
+    });
+
+    it('allows json to build an object, parsing primitives strictly.', () => {
+
+        const line = [
+            '--x.a.b', '3',
+            '--x.a.c', '4.2e2',
+            '--x.d', 'false',
+            '--x.e', 'true',
+            '--x.f', 'null',
+            '--x.g', '"str"',
+            '--x.a.c', '4.2'
+        ];
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: 'strict'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({
+            x: {
+                a: { b: 3, c: 4.2 },
+                d: false,
+                e: true,
+                f: null,
+                g: 'str'
+            }
+        });
+    });
+
+    it('does not allow json arg to contain invalid JSON, parsing primitives strictly.', () => {
+
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: 'strict'
+            }
+        };
+
+        const line1 = ['--x.a', 'str'];
+        const argv1 = parse(line1, definition);
+        expect(argv1).to.be.instanceof(Error);
+        expect(argv1.message).to.equal('Invalid value for option: x.a (invalid JSON)');
+
+        const line2 = ['--x.a', '{ "b": null'];
+        const argv2 = parse(line2, definition);
+        expect(argv2).to.be.instanceof(Error);
+        expect(argv2.message).to.equal('Invalid value for option: x.a (invalid JSON)');
+    });
+
+    it('does not allow json arg to contain an array or object, parsing primitives strictly.', () => {
+
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: 'strict'
+            }
+        };
+
+        const line1 = ['--x.a', '[1, 2]'];
+        const argv1 = parse(line1, definition);
+        expect(argv1).to.be.instanceof(Error);
+        expect(argv1.message).to.equal('Invalid value for option: x.a (non-primitive JSON value)');
+
+        const line2 = ['--x.a', '{ "b": null }'];
+        const argv2 = parse(line2, definition);
+        expect(argv2).to.be.instanceof(Error);
+        expect(argv2.message).to.equal('Invalid value for option: x.a (non-primitive JSON value)');
+    });
+
+    it('allows json to build an object, not parsing primitives.', () => {
+
+        const line = ['--x', '{ "a": null, "b": { "c": 2 } }', '--x.b.d', '3', '--x.e', '["four"]', '--x.f', 'false', '--x.g', 'null'];
+        const definition = {
+            x: {
+                type: 'json',
+                parsePrimitives: false
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { a: null, b: { c: 2, d: '3' }, e: ['four'], f: 'false', g: 'null' } });
+    });
+
+    it('allows json to build an object, by default not parsing primitives.', () => {
+
+        const line = '--x.a null --x.b 2 --x.c true --x.d false --x.e str';
+        const definition = {
+            x: {
+                type: 'json'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { a: 'null', b: '2', c: 'true', d: 'false', e: 'str' } });
+    });
+
+    it('merges into json object defaults', () => {
+
+        const line = ['--x.b', 'two', '--x', '{ "c": 3 }'];
+        const definition = {
+            x: {
+                type: 'json',
+                default: { a: 1, b: 4 }
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { a: 1, b: 'two', c: 3 } });
+        expect(definition.x.default).to.equal({ a: 1, b: 4 }); // No mutation of defaults despite merge
+    });
+
+    it('only sets json arg types deeply', () => {
+
+        const line = '--a.b str';
+        const definition = {
+            a: {
+                type: 'string'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+        expect(argv.message).to.contain('Unknown option: a.b');
+    });
+
+    it('requires json args be objects', () => {
+
+        const definition = {
+            a: {
+                type: 'json',
+                parsePrimitives: true
+            }
+        };
+
+        const line1 = '--a str';
+        const argv1 = parse(line1, definition);
+        expect(argv1).to.be.instanceof(Error);
+        expect(argv1.message).to.contain('Invalid value for option: a (must be an object or array)');
+
+        const line2 = '--a null';
+        const argv2 = parse(line2, definition);
+        expect(argv2).to.be.instanceof(Error);
+        expect(argv2.message).to.contain('Invalid value for option: a (must be an object or array)');
+    });
+
+    it('handles missing arg for json-looking option', () => {
+
+        const line = '--y.z str';
+        const definition = {
+            x: {
+                type: 'json'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+        expect(argv.message).to.contain('Unknown option: y.z');
+    });
+
+    it('requires json arg default be an array or object', () => {
+
+        const definition = (def) => ({
+            x: {
+                type: 'json',
+                default: def
+            }
+        });
+
+        expect(() => parse('', definition([]))).to.not.throw();
+        expect(() => parse('', definition({}))).to.not.throw();
+        expect(() => parse('', definition('str'))).to.throw(/must be one of \[array, object\]/);
+        expect(() => parse('', definition(null))).to.throw(/must be one of \[array, object\]/);
+        expect(() => parse('', definition(100))).to.throw(/must be one of \[array, object\]/);
+    });
+
+    it('does not allow passing valid option for json args', () => {
+
+        const definition = {
+            x: {
+                type: 'json',
+                valid: { x: 1 }
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.valid" is not allowed/);
+    });
+
+    it('does not allow passing multiple option for json args', () => {
+
+        const definition = {
+            x: {
+                type: 'json',
+                multiple: true
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.multiple" is not allowed/);
+    });
+
+    it('does not allow passing parsePrimitives option for non-json args', () => {
+
+        const definition = {
+            x: {
+                type: 'string',
+                parsePrimitives: false
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.parsePrimitives" is not allowed/);
+    });
+
+    it('does not allow json args to have a deep flag name', () => {
+
+        const definition = {
+            'x.y': {
+                type: 'json'
+            }
+        };
+
+        expect(() => parse('', definition)).to.throw(/"x\.y\.type" contains an invalid value/);
+    });
+
+    it('protects from prototype poisoning when parsing JSON for json args', () => {
+
+        const line = ['--x', '{ "y": 1, "__proto__": { "z": 2 } }'];
+        const definition = {
+            x: {
+                type: 'json'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { y: 1 } });
+    });
+
+    it('protects from prototype poisoning in dot-separated json path', () => {
+
+        const line = '--x.__proto__.y one --x.z two --x.__proto__.w three';
+        const definition = {
+            x: {
+                type: 'json'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ x: { z: 'two' } });
+    });
+
     it('allows custom argv to be passed in options in place of process.argv', () => {
 
         let argv = ['-a', '1-2,5'];
@@ -507,6 +790,44 @@ describe('parse()', () => {
 
         argv = Bossy.parse(definition, { argv });
         expect(argv).to.equal({ a: [0, 1, 2, 5, 8, 9] });
+    });
+
+    it('allows non-json args to have a deep flag name', () => {
+
+        const line = '--a.x --b.x 1 --c.x str --d.x 1-2';
+        const definition = {
+            'a.x': {
+                type: 'boolean'
+            },
+            'b.x': {
+                type: 'number'
+            },
+            'c.x': {
+                type: 'string'
+            },
+            'd.x': {
+                type: 'range'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ 'a.x': true, 'b.x': 1, 'c.x': 'str', 'd.x': [1, 2] });
+    });
+
+    it('prefers non-json arg with deep flag name to json arg with the same base', () => {
+
+        const line = '--a.x 1';
+        const definition = {
+            a: {
+                type: 'json'
+            },
+            'a.x': {
+                type: 'number'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ a: undefined, 'a.x': 1 });
     });
 
     it('returns error message when a value isn\'t found in the valid property', () => {
@@ -803,5 +1124,122 @@ describe('usage()', () => {
         expect(result).to.contain('(b)');
         expect(result).to.contain('-c, --code');
         expect(result).to.contain('(c)');
+    });
+});
+
+describe('object()', () => {
+
+    const parse = function (line, definition) {
+
+        return Bossy.parse(definition, {
+            argv: [].concat('ignore', 'ignore', Array.isArray(line) ? line : line.split(' '))
+        });
+    };
+
+    it('rolls-up parsed arguments with deep paths into an object', () => {
+
+        const line = ['--x.a', '--x.b.c', '1', '--x.d.e', 'str', '--x.d.f', '1-2', '--x', '{ "b": { "c": "10" }, "d": { "g": "h" } }'];
+        const definition = {
+            x: {
+                type: 'json'
+            },
+            'x.a': {
+                type: 'boolean'
+            },
+            'x.b.c': {
+                type: 'number'
+            },
+            'x.d.e': {
+                type: 'string'
+            },
+            'x.d.f': {
+                type: 'range'
+            }
+        };
+
+        const argv = parse(line, definition);
+        const snapshot = Hoek.clone(argv);
+
+        expect(argv).to.equal({
+            'x.a': true,
+            'x.b.c': 1,
+            'x.d.e': 'str',
+            'x.d.f': [
+                1,
+                2
+            ],
+            x: {
+                b: {
+                    c: '10'
+                },
+                d: {
+                    g: 'h'
+                }
+            },
+            _: [
+                'ignore',
+                'ignore'
+            ]
+        });
+
+        expect(Bossy.object('x', argv)).to.equal({
+            a: true,
+            b: {
+                c: 1
+            },
+            d: {
+                e: 'str',
+                f: [
+                    1,
+                    2
+                ],
+                g: 'h'
+            }
+        });
+
+        expect(argv).to.equal(snapshot); // No mutation despite merge
+    });
+
+    it('merges values shallow to deep', () => {
+
+        const x = Bossy.object('x', {
+            'x.a.b.c': 1,
+            'x.d.e': 'two',
+            'x.f': true,
+            x: {
+                a: {
+                    b: {
+                        c: 2,
+                        g: 'two'
+                    }
+                },
+                d: { e: 'three', h: 3 },
+                f: false,
+                i: null
+            }
+        });
+
+        expect(x).to.equal({
+            a: {
+                b: {
+                    c: 1,
+                    g: 'two'
+                }
+            },
+            d: { e: 'two', h: 3 },
+            f: true,
+            i: null
+        });
+    });
+
+    it('defaults initial value to an empty object', () => {
+
+        expect(Bossy.object('x', {})).to.equal({});
+        expect(Bossy.object('x', { 'x.a': 1 })).to.equal({ a: 1 });
+    });
+
+    it('does not allow rolling-up a deep flag', () => {
+
+        expect(() => Bossy.object('x.y', { 'x.y': {} })).to.throw('Cannot build an object at a deep path: x.y (contains a dot)');
     });
 });
