@@ -93,6 +93,10 @@ line argument.  Each argument key supports the following properties:
 
 * `type`: Available types are: `boolean`, `range`, `number`, `string`, `json`, and `help`.  Defaults to `string`.
 
+    The `boolean` type may be negated by passing its argument prefixed with `no-`.
+    For example, if the command line argument is named `color` then `--color` would
+    ensure the boolean is `true` and `--no-color` would ensure it is `false`.
+
     `help` is a special type that allows the switch to be executed even though
     other paramters are required. Use case is to display a help message and
     quit. This will bypass all other errors, so be sure to capture it. It
