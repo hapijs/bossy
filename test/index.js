@@ -300,6 +300,79 @@ describe('parse()', () => {
         expect(argv).to.equal({ a: null, _: [''] });
     });
 
+    it('allows a boolean to be negated', () => {
+
+        const line = '--no-a';
+        const definition = {
+            a: {
+                type: 'boolean',
+                default: true
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ a: false });
+    });
+
+    it('allows a boolean that has already been passed to be negated and vice-versa', () => {
+
+        const definition = {
+            a: {
+                type: 'boolean'
+            }
+        };
+
+        const argv1 = parse('-a --no-a', definition);
+        expect(argv1).to.equal({ a: false });
+
+        const argv2 = parse('--no-a -a', definition);
+        expect(argv2).to.equal({ a: true });
+    });
+
+    it('doesn\'t assume "no-" to denote boolean negation', () => {
+
+        const line = '--no-a';
+        const definition = {
+            'no-a': {
+                type: 'boolean'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ 'no-a': true });
+    });
+
+    it('only negates booleans', () => {
+
+        const line = '--no-a';
+        const definition = {
+            a: {
+                type: 'string'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.be.instanceof(Error);
+        expect(argv.message).to.contain('Unknown option: no-a');
+    });
+
+    it('prefers explicit argument to boolean negation in a conflict', () => {
+
+        const line = '--no-a str';
+        const definition = {
+            a: {
+                type: 'boolean',
+                default: true
+            },
+            'no-a': {
+                type: 'string'
+            }
+        };
+
+        const argv = parse(line, definition);
+        expect(argv).to.equal({ a: true, 'no-a': 'str' });
+    });
+
     it('allows custom argv to be passed in options in place of process.argv', () => {
 
         let argv = ['-a', '1-2,5'];
