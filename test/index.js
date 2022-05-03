@@ -1114,8 +1114,15 @@ describe('usage()', () => {
             },
             d: {
                 alias: ['']
+            },
+            e: {
+                type: 'number',
+                default: 0
+            },
+            f: {
+                type: 'json',
+                default: { x: 'y', z: 1 }
             }
-
         };
 
         const result = Bossy.usage(definition);
@@ -1124,6 +1131,10 @@ describe('usage()', () => {
         expect(result).to.contain('(b)');
         expect(result).to.contain('-c, --code');
         expect(result).to.contain('(c)');
+        expect(result).to.contain('-e');
+        expect(result).to.contain('(0)');
+        expect(result).to.contain('-f');
+        expect(result).to.contain('({"x":"y","z":1})');
     });
 });
 
