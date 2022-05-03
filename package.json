@@ -23,7 +23,7 @@
     "@hapi/bounce": "^3.0.0",
     "@hapi/bourne": "^3.0.0",
     "@hapi/hoek": "^10.0.0",
-    "@hapi/validate": "^1.0.0"
+    "@hapi/validate": "^2.0.0"
   },
   "devDependencies": {
     "@hapi/code": "^9.0.0",
