@@ -1,7 +1,7 @@
 {
   "name": "@hapi/bossy",
   "description": "Command line options parser",
-  "version": "5.1.1",
+  "version": "6.0.0",
   "repository": "git://github.com/hapijs/bossy",
   "main": "lib/index.js",
   "files": [
