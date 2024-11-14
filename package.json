@@ -32,7 +32,8 @@
   },
   "scripts": {
     "test": "lab -a @hapi/code -t 100 -L",
-    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html"
+    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html",
+    "test-dev": "node ./node_modules/.bin/lab -m 60000 -t 0"
   },
   "license": "BSD-3-Clause"
 }

@@ -25,7 +25,7 @@ describe('parse()', () => {
 
     it('parses command line', () => {
 
-        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 --i.x 2 --i.y.z one -f arg1 arg2 arg3';
+        const line = '-a -cb --aa -C 1 -C42 -d x -d 2 -e 1-4,6-7 --i.x 2 --i.y.z one -f arg1 arg2 arg3 -output test -overwrite true';
         const definition = {
             a: {
                 type: 'boolean'
@@ -66,6 +66,13 @@ describe('parse()', () => {
             i: {
                 type: 'json',
                 default: { x: 1, w: 3 }
+            },
+            output: {
+                type: 'string'
+            },
+            overwrite: {
+                type: 'boolean',
+                default: false
             }
         };
 
@@ -84,7 +91,9 @@ describe('parse()', () => {
             aa: true,
             h: 'hello',
             H: 'hello',
-            i: { x: '2', y: { z: 'one' }, w: 3 }
+            i: { x: '2', y: { z: 'one' }, w: 3 },
+            output: 'test',
+            overwrite: true
         });
     });
 
